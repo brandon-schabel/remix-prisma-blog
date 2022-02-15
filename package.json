@@ -5,8 +5,11 @@
   "license": "",
   "scripts": {
     "build": "remix build",
-    "dev": "remix dev",
-    "postinstall": "remix setup node"
+    "dev": "npm run start-db-local && remix dev",
+    "postinstall": "remix setup node",
+    "init-db-local": "mkdir pg-db && pg_ctl init -D ./pg-db",
+    "start-db-local": "pg_ctl start -D ./pg-db",
+    "stop-db-local": "pg_ctl stop -D ./pg-db"
   },
   "dependencies": {
     "@remix-run/react": "^1.1.3",
