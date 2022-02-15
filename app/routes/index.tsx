@@ -1,5 +1,6 @@
 import { Post } from '@prisma/client'
 import { Link, LoaderFunction, useLoaderData } from 'remix'
+import { PostContent } from '~/components/ViewPost'
 import { prismaDB } from '~/utils/prisma.server'
 
 export const loader: LoaderFunction = async () => {
@@ -19,7 +20,9 @@ export default function Index() {
               {post.title}
             </div>
 
-            <div className="card-body">{post.content.substring(0, 100)}</div>
+            <div className="card-body">
+              <PostContent post={post} />
+            </div>
             <hr />
           </div>
         </Link>
