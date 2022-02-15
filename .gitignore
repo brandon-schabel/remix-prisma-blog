@@ -6,5 +6,6 @@ node_modules
 
 public/build
 api/_build
-./pg-db
+pg-db
 .idea
+.env

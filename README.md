@@ -1,6 +1,28 @@
-# Welcome to Remix!
+## Setup
+Install Packages
+```
+npm install
+```
 
-- [Remix Docs](https://remix.run/docs)
+initialize your database 
+```
+npm run init-db-local
+```
+
+## Development
+start your database
+```
+npm run start-db-local
+```
+
+run the server
+note: The first time you run the app you may need to start it twice, the first time will be used to generate the tailwind style files, the restart is required for the server to pick it up. After that it will hot reload.
+
+```
+npm run dev
+```
+
+Open up [http://localhost:3000](http://localhost:3000) and you should be ready to go!
 
 ## Deployment
 
@@ -15,20 +37,4 @@ vercel
 
 It is generally recommended to use a Git repository, because future commits will then automatically be deployed by Vercel, through its [Git Integration](https://vercel.com/docs/concepts/git).
 
-## Development
 
-To run your Remix app locally, make sure your project's local dependencies are installed:
-
-```sh
-npm install
-```
-
-Afterwards, start the Remix development server like so:
-
-```sh
-npm run dev
-```
-
-Open up [http://localhost:3000](http://localhost:3000) and you should be ready to go!
-
-If you're used to using the `vercel dev` command provided by [Vercel CLI](https://vercel.com/cli) instead, you can also use that, but it's not needed.

@@ -4,25 +4,37 @@
   "description": "",
   "license": "",
   "scripts": {
-    "build": "remix build",
-    "dev": "npm run start-db-local && remix dev",
+    "build:remix": "remix build",
+    "build:css": "cross-env NODE_ENV=production tailwindcss -i ./app/styles/tailwind.css -o ./app/styles/app.css --minify",
+    "build": "npm run build:css && npm run build:remix",
+    "dev:remix": "remix dev",
+    "dev:css": "tailwindcss -i ./app/styles/tailwind.css -o ./app/styles/app.css --watch",
+    "dev": "npm run prisma-migrate-local && concurrently \"npm:dev:*\"",
     "postinstall": "remix setup node",
     "init-db-local": "mkdir pg-db && pg_ctl init -D ./pg-db",
     "start-db-local": "pg_ctl start -D ./pg-db",
-    "stop-db-local": "pg_ctl stop -D ./pg-db"
+    "stop-db-local": "pg_ctl stop -D ./pg-db",
+    "prisma-migrate-local": "npx prisma migrate dev --name init"
   },
   "dependencies": {
+    "@prisma/client": "^3.9.2",
     "@remix-run/react": "^1.1.3",
+    "@remix-run/serve": "^1.1.3",
+    "@remix-run/vercel": "^1.1.3",
+    "daisyui": "^2.0.2",
+    "prisma": "^3.9.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "remix": "^1.1.3",
-    "@remix-run/serve": "^1.1.3",
-    "@remix-run/vercel": "^1.1.3"
+    "remix": "^1.1.3"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.1.3",
     "@types/react": "^17.0.24",
     "@types/react-dom": "^17.0.9",
+    "concurrently": "^7.0.0",
+    "postcss": "^8.4.6",
+    "prettier": "^2.5.1",
+    "tailwindcss": "^3.0.22",
     "typescript": "^4.1.2"
   },
   "engines": {
