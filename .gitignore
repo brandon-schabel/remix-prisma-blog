@@ -9,3 +9,4 @@ api/_build
 pg-db
 .idea
 .env
+app/styles/app.css

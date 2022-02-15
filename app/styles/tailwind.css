@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .nav-border-right {
+    @apply border-r border-base-200;
+  }
+}
+
+.app-card {
+  @apply card;
+}
+
+.app-card-padded {
+  @apply p-2;
+}
+
+.app-card-margin {
+  @apply m-2;
+}
+
+.app-card-colors {
+  @apply bg-neutral text-neutral-content;
+}
+
+.flex-center {
+  @apply flex w-full justify-center items-center;
+}
+
+.page-heading-text {
+  @apply font-bold text-3xl;
+}
+
+.double-card-layout-container {
+  @apply flex flex-col justify-center items-center w-full md:flex-row flex-wrap justify-evenly w-full;
+}
+
+.card-page-container {
+  @apply p-4 flex flex-wrap justify-between;
+}

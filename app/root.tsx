@@ -1,16 +1,23 @@
 import {
+  Link,
   Links,
+  LinksFunction,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration
-} from "remix";
-import type { MetaFunction } from "remix";
+  ScrollRestoration,
+} from 'remix'
+import type { MetaFunction } from 'remix'
+import appStyleUrl from '~/styles/app.css'
+
+export let links: LinksFunction = () => {
+  return [{ rel: 'stylesheet', href: appStyleUrl }]
+}
 
 export const meta: MetaFunction = () => {
-  return { title: "New Remix App" };
-};
+  return { title: 'Blog' }
+}
 
 export default function App() {
   return (
@@ -21,12 +28,16 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body >
+        <Link className="py-4" to="/">
+          Home
+        </Link>
+
         <Outlet />
         <ScrollRestoration />
         <Scripts />
-        {process.env.NODE_ENV === "development" && <LiveReload />}
+        {process.env.NODE_ENV === 'development' && <LiveReload />}
       </body>
     </html>
-  );
+  )
 }
