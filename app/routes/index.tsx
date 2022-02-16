@@ -15,7 +15,7 @@ export default function Index() {
     <div className="w-full flex flex-col justify-center items-center">
       {posts.map(post => (
         <Link to={`/post/${post.id}`}>
-          <div className="flex justify-center items-center w-96 card card-bordered bg-neutral">
+          <div className="flex justify-center items-center w-96 card card-bordered bg-accent">
             <div className="card-title" key={post.id}>
               {post.title}
             </div>
