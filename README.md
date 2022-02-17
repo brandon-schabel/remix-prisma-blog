@@ -1,3 +1,12 @@
+## Info
+This is a simple Blog with a rich text editor. 
+
+Currently I plan on adding
+- Basic profiles and admin profiles
+- Commenting
+- Images
+
+
 ## Setup
 Install Packages
 ```
