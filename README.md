@@ -1,7 +1,13 @@
 ## Info
 This is a simple Blog with a rich text editor. 
 
-Currently I plan on adding
+Current Featues
+- Basic Rich Text Editor using [Slate](https://github.com/ianstormtaylor/slate)
+- Simple auth on posting
+- Basic rich text parsing
+- Rich text is stored in DB as JSON so it's fully customizable using Slate
+
+I plan on adding
 - Basic profiles and admin profiles
 - Commenting
 - Images
@@ -17,6 +23,13 @@ initialize your database
 ```
 npm run init-db-local
 ```
+
+### .env file
+#DATABASE_URL=#postgres db link/credentials
+
+ADMIN_USER=your_profile_name
+ADMIN_PASS=your_password
+
 
 ## Development
 start your database
