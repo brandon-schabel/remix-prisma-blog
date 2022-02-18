@@ -7,11 +7,15 @@ cloudinary.v2.config({
   api_secret: process.env.API_SECRET,
 })
 
-const uploadImage = async (fileStream: Stream) => {
+const uploadImage = async (
+  fileStream: Stream
+): Promise<
+  cloudinary.UploadApiResponse | cloudinary.UploadApiErrorResponse | undefined
+> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.v2.uploader.upload_stream(
       {
-        folder: 'remix',
+        folder: 'personal-blog',
       },
       (error, result) => {
         if (error) {

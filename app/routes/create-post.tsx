@@ -1,11 +1,12 @@
 import { FC, useState } from 'react'
-import { ActionFunction, redirect, useSubmit } from 'remix'
+import { ActionFunction, redirect, useFetcher, useSubmit } from 'remix'
 import { prismaDB } from '~/utils/prisma.server'
 import { Descendant } from 'slate'
 
-import { TextEditor } from '~/components/TextEditor'
+import { Button, TextEditor } from '~/components/TextEditor'
 import { ExtendedCustomElement } from './post/$postId'
 import { CustomText } from 'types'
+import { useEffect } from 'react'
 
 export const action: ActionFunction = async ({ request }) => {
   const data = await request.formData()
@@ -44,8 +45,25 @@ const Label: FC<{ htmlFor: string }> = ({ children, htmlFor }) => {
   )
 }
 
+type UploadReturnTypes = {
+  error?: string
+  imgSrc?: string
+}
+
 export type CustomDescendant = ExtendedCustomElement | CustomText
 export default function Index() {
+  const uploader = useFetcher<UploadReturnTypes>()
+  const [imageUrls, setImageUrls] = useState<string[]>([])
+
+  useEffect(() => {
+    if (uploader.data?.imgSrc) {
+      // if imgSrc doesn't exists in imageUrls, add it
+      if (!imageUrls?.includes(uploader.data.imgSrc)) {
+        setImageUrls([...imageUrls, uploader.data.imgSrc])
+      }
+    }
+  }, [uploader.data])
+
   const [value, setValue] = useState<CustomDescendant[]>([
     {
       type: 'paragraph',
@@ -103,6 +121,26 @@ export default function Index() {
   return (
     <div className="flex items-center justify-start w-fulls">
       <div className="flex flex-col  items-center justify-center max-w-screen-xl w-full">
+        <uploader.Form
+          method="post"
+          encType="multipart/form-data"
+          action="/cloudinary-upload"
+        >
+          <Label htmlFor="ImageName">Image Name</Label>
+          <input type="text" name="imageName" />
+
+          <Label htmlFor="ImageFile">Image File</Label>
+          <input type="file" name="img" accept="image/*" />
+          <button type="submit" className="btn btn-primary">
+            upload to cloudinary
+          </button>
+        </uploader.Form>
+        <p>Image Urls</p>
+
+        {imageUrls.map(url => (
+          <p>{url}</p>
+        ))}
+
         <form method="post" className="flex flex-col" onSubmit={submitForm}>
           <Label htmlFor="username">Username</Label>
           <input name="username" className="input input-primary" />

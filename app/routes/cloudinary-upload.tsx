@@ -20,7 +20,7 @@ export const action: ActionFunction = async ({ request }) => {
       return
     }
     const uploadedImage = await uploadImage(stream)
-    return uploadedImage.secure_url
+    return uploadedImage?.secure_url
   }
 
   const formData = await unstable_parseMultipartFormData(request, uploadHandler)

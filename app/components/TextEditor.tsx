@@ -11,6 +11,10 @@ import {
 } from 'slate'
 import { withHistory } from 'slate-history'
 import { CustomDescendant } from '~/routes/create-post'
+import isUrl from 'is-url'
+import imageExtensions from 'image-extensions'
+import { useSlateStatic } from 'slate-react'
+import { Image } from './Image'
 
 // import { Button, Icon } from '../components'
 
@@ -24,7 +28,7 @@ interface ButtonProps
   isActive: boolean
 }
 
-const Button: FC<ButtonProps> = ({
+export const Button: FC<ButtonProps> = ({
   children,
   className,
   isActive,
@@ -114,9 +118,54 @@ const Element = ({ attributes, children, element }) => {
       return <li {...attributes}>{children}</li>
     case 'numbered-list':
       return <ol {...attributes}>{children}</ol>
+    case 'image':
+      return <Image attributes={attributes} element={element} children={children} />
     default:
       return <p {...attributes}>{children}</p>
   }
+}
+
+export type EmptyText = {
+  text: string
+}
+
+export type ImageElement = {
+  type: 'image'
+  url: string
+  children: EmptyText[]
+}
+
+const isImageUrl = url => {
+  if (!url) return false
+  if (!isUrl(url)) return false
+  const ext = new URL(url).pathname.split('.').pop()
+  return imageExtensions.includes(ext)
+}
+
+const insertImage = (editor, url) => {
+  const text = { text: '' }
+  const image: ImageElement = { type: 'image', url, children: [text] }
+  Transforms.insertNodes(editor, image)
+}
+
+const InsertImageButton = () => {
+  const editor = useSlateStatic()
+  return (
+    <Button
+      isActive={false}
+      onMouseDown={event => {
+        event.preventDefault()
+        const url = window.prompt('Enter the URL of the image:')
+        if (url && !isImageUrl(url)) {
+          alert('URL is not an image')
+          return
+        }
+        insertImage(editor, url)
+      }}
+    >
+      Insert Image
+    </Button>
+  )
 }
 
 const Leaf = ({ attributes, children, leaf }) => {
@@ -150,7 +199,8 @@ const BlockButton = ({ format, icon }) => {
       }}
     >
       {/* <Icon>{icon}</Icon> */}
-      {icon}
+      {/* {icon} */}
+      {format}
     </Button>
   )
 }
@@ -165,7 +215,8 @@ const MarkButton = ({ format, icon }) => {
         toggleMark(editor, format)
       }}
     >
-      {icon}
+      {format}
+      {/* {icon} */}
       {/* <Icon>{icon}</Icon> */}
     </Button>
   )
@@ -211,17 +262,13 @@ interface TextEditorProps {
   value: Descendant[]
 }
 
-export const TextEditor: FC<TextEditorProps> = ({
-  value, setValue,
-}) => {
+export const TextEditor: FC<TextEditorProps> = ({ value, setValue }) => {
   const renderElement = useCallback(props => <Element {...props} />, [])
   const renderLeaf = useCallback(props => <Leaf {...props} />, [])
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
 
   return (
-    <Slate editor={editor} value={value} onChange={value => setValue(value)}
-    
-    >
+    <Slate editor={editor} value={value} onChange={value => setValue(value)}>
       <div>
         <MarkButton format="bold" icon="format_bold" />
         <MarkButton format="italic" icon="format_italic" />
@@ -232,10 +279,11 @@ export const TextEditor: FC<TextEditorProps> = ({
         <BlockButton format="block-quote" icon="format_quote" />
         <BlockButton format="numbered-list" icon="format_list_numbered" />
         <BlockButton format="bulleted-list" icon="format_list_bulleted" />
+        <InsertImageButton />
       </div>
       <Editable
-    //   className='input input-primary'
-        className='textarea textarea-primary'
+        //   className='input input-primary'
+        className="textarea textarea-primary"
         renderElement={renderElement}
         renderLeaf={renderLeaf}
         placeholder="Enter some rich text…"
