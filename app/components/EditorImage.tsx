@@ -1,26 +1,38 @@
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { Transforms } from 'slate'
-import {
-  ReactEditor,
-  useFocused,
-  useSelected,
-  useSlateStatic,
-} from 'slate-react'
-import { Button } from './TextEditor'
+import { ReactEditor, useFocused, useSlateStatic } from 'slate-react'
+import { AppNode } from '~/routes/post/$postId'
+import { Button } from './TextEditor/EditorButtons'
 
-export const Image: FC = ({ attributes, children, element }) => {
+export const imageClasses = 'block w-auto max-h-80 shadow'
+
+interface IEditorImage {
+  element: AppNode
+  attributes: React.DetailedHTMLProps<
+    React.HTMLAttributes<HTMLDivElement>,
+    HTMLDivElement
+  >
+}
+
+export const EditorImage: FC<IEditorImage> = ({
+  attributes,
+  children,
+  element,
+}) => {
   const editor = useSlateStatic()
+  //@ts-ignore
   const path = ReactEditor.findPath(editor, element)
+  const [selected, setSelected] = useState<boolean>()
 
-  const selected = useSelected()
   const focused = useFocused()
   return (
     <div {...attributes}>
       {children}
       <div contentEditable={false} className="relative">
         <img
+          onClick={() => setSelected(!selected)}
           src={element.url}
-          className="block w-full max-h-80 shadow"
+          className={imageClasses}
           style={{
             boxShadow: `${selected && focused ? '0 0 0 3px #B4D5FF' : 'none'}`,
           }}

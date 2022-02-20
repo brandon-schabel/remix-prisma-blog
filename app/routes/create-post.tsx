@@ -3,10 +3,10 @@ import { ActionFunction, redirect, useFetcher, useSubmit } from 'remix'
 import { prismaDB } from '~/utils/prisma.server'
 import { Descendant } from 'slate'
 
-import { Button, TextEditor } from '~/components/TextEditor'
 import { ExtendedCustomElement } from './post/$postId'
 import { CustomText } from 'types'
 import { useEffect } from 'react'
+import { TextEditor } from '~/components/TextEditor/TextEditor'
 
 export const action: ActionFunction = async ({ request }) => {
   const data = await request.formData()
@@ -90,6 +90,7 @@ export default function Index() {
       ],
     },
     {
+      // @ts-ignore
       type: 'block-quote',
       children: [{ text: 'A wise quote.' }],
     },
