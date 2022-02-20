@@ -1,17 +1,16 @@
 ## Info
 This is a simple Blog with a rich text editor. 
 
-Current Featues
+Current Features
 - Basic Rich Text Editor using [Slate](https://github.com/ianstormtaylor/slate)
 - Simple auth on posting
 - Basic rich text parsing
 - Rich text is stored in DB as JSON so it's fully customizable using Slate
+- Images
 
 I plan on adding
 - Basic profiles and admin profiles
 - Commenting
-- Images
-
 
 ## Setup
 Install Packages
