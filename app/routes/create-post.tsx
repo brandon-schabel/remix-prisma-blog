@@ -7,6 +7,43 @@ import { ExtendedCustomElement } from './post/$postId'
 import { CustomText } from 'types'
 import { useEffect } from 'react'
 import { TextEditor } from '~/components/TextEditor/TextEditor'
+import { useLocalStorage } from '~/utils/useLocalStorage'
+
+const initialValue: CustomDescendant[] = [
+  {
+    type: 'paragraph',
+    children: [
+      { text: 'This is editable ' },
+      { text: 'rich', bold: true },
+      { text: ' text, ' },
+      { text: 'much', italic: true },
+      { text: ' better than a ' },
+      { text: '<textarea>', code: true },
+      { text: '!' },
+    ],
+  },
+  {
+    type: 'paragraph',
+    children: [
+      {
+        text: "Since it's rich text, you can do things like turn a selection of text ",
+      },
+      { text: 'bold', bold: true },
+      {
+        text: ', or add a semantically rendered block quote in the middle of the page, like this:',
+      },
+    ],
+  },
+  {
+    // @ts-ignore
+    type: 'block-quote',
+    children: [{ text: 'A wise quote.' }],
+  },
+  {
+    type: 'paragraph',
+    children: [{ text: 'Try it out for yourself!' }],
+  },
+]
 
 export const action: ActionFunction = async ({ request }) => {
   const data = await request.formData()
@@ -53,52 +90,22 @@ type UploadReturnTypes = {
 export type CustomDescendant = ExtendedCustomElement | CustomText
 export default function Index() {
   const uploader = useFetcher<UploadReturnTypes>()
-  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [imageUrls, setImageUrls] = useLocalStorage<string[]>('createPostImageUrls', [])
 
   useEffect(() => {
-    if (uploader.data?.imgSrc) {
-      // if imgSrc doesn't exists in imageUrls, add it
-      if (!imageUrls?.includes(uploader.data.imgSrc)) {
+    if (!uploader.data?.imgSrc) return
+    if (!Array.isArray(imageUrls)) return
+
+    // if imgSrc doesn't exists in imageUrls, add it
+    if (!imageUrls?.includes(uploader.data.imgSrc)) {
+      // if setImageUrls is a function, call it
+      if (typeof setImageUrls === 'function') {
         setImageUrls([...imageUrls, uploader.data.imgSrc])
       }
     }
   }, [uploader.data])
 
-  const [value, setValue] = useState<CustomDescendant[]>([
-    {
-      type: 'paragraph',
-      children: [
-        { text: 'This is editable ' },
-        { text: 'rich', bold: true },
-        { text: ' text, ' },
-        { text: 'much', italic: true },
-        { text: ' better than a ' },
-        { text: '<textarea>', code: true },
-        { text: '!' },
-      ],
-    },
-    {
-      type: 'paragraph',
-      children: [
-        {
-          text: "Since it's rich text, you can do things like turn a selection of text ",
-        },
-        { text: 'bold', bold: true },
-        {
-          text: ', or add a semantically rendered block quote in the middle of the page, like this:',
-        },
-      ],
-    },
-    {
-      // @ts-ignore
-      type: 'block-quote',
-      children: [{ text: 'A wise quote.' }],
-    },
-    {
-      type: 'paragraph',
-      children: [{ text: 'Try it out for yourself!' }],
-    },
-  ])
+  const [value, setValue] = useLocalStorage<CustomDescendant[]>('createPostContent', initialValue)
   const submit = useSubmit()
 
   const submitForm = (event: any) => {
@@ -138,9 +145,7 @@ export default function Index() {
         </uploader.Form>
         <p>Image Urls</p>
 
-        {imageUrls.map(url => (
-          <p>{url}</p>
-        ))}
+        {Array.isArray(imageUrls) && imageUrls.map(url => <p>{url}</p>)}
 
         <form method="post" className="flex flex-col" onSubmit={submitForm}>
           <Label htmlFor="username">Username</Label>
