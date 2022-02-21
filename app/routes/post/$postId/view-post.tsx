@@ -98,7 +98,7 @@ export const Image: FC<ImageProps> = ({ attributes, children, element }) => {
     <div {...attributes}>
       {children}
       <div contentEditable={false} className="relative">
-        <img src={element.url} className={imageClasses} />
+        <img src={element.url} className={imageClasses + ' rounded'} />
       </div>
     </div>
   )

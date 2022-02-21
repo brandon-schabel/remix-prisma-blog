@@ -19,6 +19,7 @@ model Post {
     authorId  String
     comments  Comment[]
     published Boolean   @default(false)
+    images     String[]
 }
 
 model User {

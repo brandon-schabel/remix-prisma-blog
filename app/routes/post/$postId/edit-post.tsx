@@ -10,7 +10,7 @@ import {
 import { prismaDB } from '~/utils/prisma.server'
 import { Descendant } from 'slate'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { TextEditor } from '~/components/TextEditor/TextEditor'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { getUser } from '~/utils/auth/getUser'
@@ -58,8 +58,10 @@ export const action: ActionFunction = async ({ request, params }) => {
   const data = await request.formData()
   const title = data.get('title') as string
   const content = data.get('content') as string
+  const imageUrls = data.get('imageUrls') as string
 
   const parsedContent = JSON.parse(content) as Descendant[]
+  const parsedImageUrls = JSON.parse(imageUrls) as string[]
 
   try {
     const postUpdate = await prismaDB.post.update({
@@ -70,6 +72,7 @@ export const action: ActionFunction = async ({ request, params }) => {
         title: title || '',
         content: parsedContent || '',
         updatedAt: new Date(),
+        images: parsedImageUrls || [],
       },
     })
 
@@ -101,14 +104,8 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 export default function EditPost() {
   const { post } = useLoaderData<{ post: Post }>()
   const uploader = useFetcher<UploadReturnTypes>()
-  const [imageUrls, setImageUrls] = useLocalStorage<string[]>(
-    'createPostImageUrls' + post.id,
-    []
-  )
-  const [value, setValue] = useLocalStorage<CustomDescendant[]>(
-    'updatePost' + post?.id,
-    post.content
-  )
+  const [imageUrls, setImageUrls] = useState<string[]>(post.images)
+  const [value, setValue] = useState<CustomDescendant[]>(post.content as Descendant[])
   const submit = useSubmit()
 
   useEffect(() => {
@@ -133,6 +130,7 @@ export default function EditPost() {
     const data = {
       title,
       content,
+      imageUrls: JSON.stringify(imageUrls),
     }
 
     submit(data, { method: 'post' })
@@ -147,13 +145,10 @@ export default function EditPost() {
           encType="multipart/form-data"
           action="/cloudinary-upload"
         >
-          <Label htmlFor="ImageName">Image Name</Label>
-          <input type="text" name="imageName" />
-
           <Label htmlFor="ImageFile">Image File</Label>
           <input type="file" name="img" accept="image/*" />
           <button type="submit" className="btn btn-primary">
-            upload to cloudinary
+            Upload Photo
           </button>
         </uploader.Form>
         <p>Image Urls</p>
