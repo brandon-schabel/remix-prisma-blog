@@ -82,6 +82,7 @@ const Input: FC<{
           placeholder={config.labelTitle}
           inputMode={config.inputMode}
           list={config.listValues ? config.name : undefined}
+          disabled={config.disabled}
         />
       </div>
       <datalist id={config.name}>
@@ -131,7 +132,8 @@ export const WhoaForm: FC<IWhoaForm<any>> = ({
   isLoading,
   data,
   className,
-  children,reloadDocument
+  children,
+  reloadDocument,
   // transition,
 }) => {
   const transition = useTransition()
@@ -178,7 +180,12 @@ export const WhoaForm: FC<IWhoaForm<any>> = ({
       {action?.info && (
         <div className="bg-info rounded-md p-2">{action.info?.message}</div>
       )}
-      <Form method="post" action={actionPath} onSubmit={handleClientSubmit} reloadDocument={reloadDocument}>
+      <Form
+        method="post"
+        action={actionPath}
+        onSubmit={handleClientSubmit}
+        reloadDocument={reloadDocument}
+      >
         {inputConfigs.map(config => {
           if (config.inputType === 'other') {
             return (

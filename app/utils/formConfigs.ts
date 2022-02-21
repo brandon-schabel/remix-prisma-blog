@@ -32,6 +32,7 @@ export type FormConfig<ValidNameKeys> = {
   }
 
   group?: string
+  disabled?: boolean
 
   // TODO: server validation fields
 }

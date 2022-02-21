@@ -5,6 +5,7 @@ import { supabaseStrategy } from '~/utils/auth/auth.server'
 export const getUserAuth = async (request: Request) => {
   try {
     const session = await supabaseStrategy.checkSession(request)
+    if(!session) return null
 
     return {
       id: session?.user?.id,

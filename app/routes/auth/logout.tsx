@@ -1,10 +1,10 @@
 import { ActionFunction, LoaderFunction, redirect } from 'remix'
-import { clearCookie } from '~/utils/supabase-sessions.server'
+import { authenticator } from '~/utils/auth/auth.server'
 
-export let action: ActionFunction = async ({ request }): Promise<Response> => {
-  return clearCookie(request)
+export let action: ActionFunction = async ({ request }) => {
+  await authenticator.logout(request, { redirectTo: '/' })
 }
 
-export let loader: LoaderFunction = async () => {
-  return redirect('/')
+export let loader: LoaderFunction = async ({ request }) => {
+  await authenticator.logout(request, { redirectTo: '/' })
 }
