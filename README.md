@@ -7,10 +7,16 @@ Current Features
 - Basic rich text parsing
 - Rich text is stored in DB as JSON so it's fully customizable using Slate
 - Images
+- Sign In/Sign Up and Logout using Supabase
+- Basic profiles and admin profiles
+- Post publishing, when a post is made it is unpublished so they can review the post first.
+- Post edit(if author or admin)
+- Only accounts marked with "authorizedPoster" can create a post
+- Error feedback and info messages
 
 I plan on adding
-- Basic profiles and admin profiles
 - Commenting
+- Host images on supabase
 
 ## Setup
 Install Packages
@@ -24,10 +30,14 @@ npm run init-db-local
 ```
 
 ### .env file
-DATABASE_URL=#postgres db link/credentials
-
+DATABASE_URL="postgres_url"
 ADMIN_USER=your_profile_name
 ADMIN_PASS=your_password
+CLOUD_NAME="cloudinary_cloud_name"
+API_KEY="cloudinary_api_key"
+API_SECRET="cloudinary_api_secret"
+PUBLIC_SUPABASE_URL="https://appname.supabase.co"
+PUBLIC_SUPABASE_SECRET_KEY="public_supabase_secret_key"
 
 
 ## Development
