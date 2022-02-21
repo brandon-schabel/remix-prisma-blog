@@ -9,7 +9,7 @@ import { TextEditor } from '~/components/TextEditor/TextEditor'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { getUser } from '~/utils/auth/getUser'
 import { ExtendedCustomElement } from './post/$postId/view-post'
-import { ErrorMessage } from '~/components/ErrorMessage'
+import { ActionMessage } from '~/components/ActionErrorMessage'
 
 const initialValue: CustomDescendant[] = [
   {
@@ -105,7 +105,7 @@ export default function CreatePost() {
 
   return (
     <div className="flex flex-col items-center justify-start w-full">
-      <ErrorMessage />
+      <ActionMessage />
       <div className="flex flex-col  items-center justify-center max-w-screen-xl w-full">
         <uploader.Form
           method="post"

@@ -1,4 +1,12 @@
-import { Link, LoaderFunction, useLoaderData } from 'remix'
+import {
+  ActionFunction,
+  Form,
+  json,
+  Link,
+  LoaderFunction,
+  redirect,
+  useLoaderData,
+} from 'remix'
 import { Post, User } from '@prisma/client'
 import { prismaDB } from '~/utils/prisma.server'
 import { CustomElement, CustomText } from 'types'
@@ -7,6 +15,39 @@ import { imageClasses } from '~/components/EditorImage'
 import { ElementAttributes } from '~/components/TextEditor/TextEditor'
 import { getUser } from '~/utils/auth/getUser'
 import { isPostCreatorOrAdmin } from './edit-post'
+import { ActionMessage } from '~/components/ActionErrorMessage'
+import { BannerWarningMessage } from '~/components/BannerWarningMessage'
+
+export const action: ActionFunction = async ({ request, params }) => {
+  const user = await getUser(request)
+
+  const postId = parseInt(params?.postId || '0')
+  const post = await prismaDB.post.findUnique({
+    where: {
+      id: postId,
+    },
+    include: { author: true },
+  })
+
+  if (!post) return null
+  if (!isPostCreatorOrAdmin(post, user) && !post.published) return redirect('/')
+  const data = await request.formData()
+  const publishPostId = parseInt(data.get('postId') as string)
+
+  if (publishPostId === post.id) {
+    const result = await prismaDB.post.update({
+      where: { id: publishPostId },
+      data: { published: !post.published, updatedAt: new Date() },
+    })
+    if (result.published) {
+      return json({ info: { message: 'Post published' } })
+    }
+
+    if (!result.published) {
+      return json({ error: { message: 'Post unpublished' } })
+    }
+  }
+}
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const user = await getUser(request)
@@ -20,6 +61,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   })
 
   if (!post) return null
+  if (!isPostCreatorOrAdmin(post, user) && !post.published) return redirect('/')
 
   return {
     post,
@@ -114,6 +156,10 @@ export default function View() {
 
   return (
     <div className="flex w-full justify-center items-center flex-col">
+      <ActionMessage />
+      {!post.published && (
+        <BannerWarningMessage message="This Post Is Not Yet Published" />
+      )}
       <div className="flex flex-col justify-center items-center max-w-4xl w-full">
         <h1 className="text-xl text-center my-4">{title}</h1>
 
@@ -150,6 +196,15 @@ export default function View() {
           Edit
         </Link>
       )}
+      <Form method="post">
+        <input type="hidden" name="postId" value={post.id} />
+        <button
+          type="submit"
+          className={`btn ${post.published ? 'btn-error' : 'btn-success'}`}
+        >
+          {post.published ? 'Unpublish' : 'Publish'}
+        </button>
+      </Form>
     </div>
   )
 }

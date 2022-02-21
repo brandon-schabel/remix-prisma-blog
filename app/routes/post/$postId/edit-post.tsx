@@ -20,12 +20,13 @@ import {
   UploadReturnTypes,
 } from '~/routes/create-post'
 import { Post, User } from '@prisma/client'
-import { ErrorMessage } from '~/components/ErrorMessage'
+import { ActionMessage } from '~/components/ActionErrorMessage'
 
 export const isPostCreatorOrAdmin = (
   post: Post & { author: User },
-  currentUser: User
+  currentUser: User | null | undefined
 ) => {
+  if (!currentUser) return false
   return post.author.id === currentUser.id || currentUser.isAdmin
 }
 
@@ -42,8 +43,6 @@ export const action: ActionFunction = async ({ request, params }) => {
   })
 
   if (!post) return { error: { message: 'Post not found' } }
-
-  console.log(post.author, user)
 
   if (!isPostCreatorOrAdmin(post, user)) {
     return json(
@@ -141,7 +140,7 @@ export default function EditPost() {
 
   return (
     <div className="flex flex-col items-center justify-start w-full">
-      <ErrorMessage />
+      <ActionMessage />
       <div className="flex flex-col  items-center justify-center max-w-screen-xl w-full">
         <uploader.Form
           method="post"

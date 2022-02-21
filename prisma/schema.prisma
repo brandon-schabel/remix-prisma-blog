@@ -18,6 +18,7 @@ model Post {
     author    User      @relation(fields: [authorId], references: [id])
     authorId  String
     comments  Comment[]
+    published Boolean   @default(false)
 }
 
 model User {
