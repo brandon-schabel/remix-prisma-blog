@@ -17,6 +17,7 @@ import { getUser } from '~/utils/auth/getUser'
 import { isPostCreatorOrAdmin } from './edit-post'
 import { ActionMessage } from '~/components/ActionErrorMessage'
 import { BannerWarningMessage } from '~/components/BannerWarningMessage'
+import { resizeCloudinaryUrl } from '~/utils/cloudinaryImageUrlResize'
 
 export const action: ActionFunction = async ({ request, params }) => {
   const user = await getUser(request)
@@ -98,7 +99,10 @@ export const Image: FC<ImageProps> = ({ attributes, children, element }) => {
     <div {...attributes}>
       {children}
       <div contentEditable={false} className="relative">
-        <img src={element.url} className={imageClasses + ' rounded'} />
+        <img
+          src={resizeCloudinaryUrl(element.url)}
+          className={imageClasses + ' rounded mb-2'}
+        />
       </div>
     </div>
   )
@@ -170,13 +174,9 @@ export default function View() {
         {content.map(node => {
           if (node.type === 'image') {
             return (
-              <Image
-                key={node.url}
-                element={node}
-                attributes={{
-                  className: 'w-full',
-                }}
-              />
+              <div className="flex w-full justify-center items-center">
+                <Image key={node.url} element={node} />
+              </div>
             )
           }
           if (node.type === 'paragraph') {
@@ -200,7 +200,7 @@ export default function View() {
           Edit
         </Link>
       )}
-      <Form method="post">
+      {userCanEdit && <Form method="post">
         <input type="hidden" name="postId" value={post.id} />
         <button
           type="submit"
@@ -208,7 +208,7 @@ export default function View() {
         >
           {post.published ? 'Unpublish' : 'Publish'}
         </button>
-      </Form>
+      </Form>}
     </div>
   )
 }

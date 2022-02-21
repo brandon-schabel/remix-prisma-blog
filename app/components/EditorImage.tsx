@@ -4,7 +4,7 @@ import { ReactEditor, useFocused, useSlateStatic } from 'slate-react'
 import { AppNode } from '~/routes/post/$postId/view-post'
 import { Button } from './TextEditor/EditorButtons'
 
-export const imageClasses = 'block w-auto max-h-80 shadow'
+export const imageClasses = 'block w-auto max-h-96 shadow'
 
 interface IEditorImage {
   element: AppNode
