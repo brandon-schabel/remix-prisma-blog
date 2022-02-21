@@ -1,5 +1,5 @@
 import { FC, useState } from 'react'
-import { ActionFunction, redirect, useFetcher, useSubmit } from 'remix'
+import { ActionFunction, json, redirect, useFetcher, useSubmit } from 'remix'
 import { prismaDB } from '~/utils/prisma.server'
 import { Descendant } from 'slate'
 
@@ -8,6 +8,7 @@ import { CustomText } from 'types'
 import { useEffect } from 'react'
 import { TextEditor } from '~/components/TextEditor/TextEditor'
 import { useLocalStorage } from '~/utils/useLocalStorage'
+import { getUser } from '~/utils/auth/getUser'
 
 const initialValue: CustomDescendant[] = [
   {
@@ -46,25 +47,27 @@ const initialValue: CustomDescendant[] = [
 ]
 
 export const action: ActionFunction = async ({ request }) => {
+  const user = await getUser(request)
+  if (!user?.authorizedPoster) {
+    return json({
+      error: {
+        message: 'You are not an authorized user.',
+      },
+    })
+  }
   const data = await request.formData()
   const title = data.get('title') as string
   const content = data.get('content') as string
-  const username = data.get('username') as string
-  const password = data.get('password') as string
 
   const parsedContent = JSON.parse(content) as Descendant[]
 
-  if (
-    username !== process.env.ADMIN_USER ||
-    password !== process.env.ADMIN_PASS
-  ) {
-    console.log('Invalid username and password')
-    return null
-  }
-
   try {
     const post = await prismaDB.post.create({
-      data: { title: title || '', content: parsedContent || '' },
+      data: {
+        title: title || '',
+        content: parsedContent || '',
+        authorId: user.id,
+      },
     })
 
     return redirect('/post/' + post.id)
@@ -90,7 +93,10 @@ type UploadReturnTypes = {
 export type CustomDescendant = ExtendedCustomElement | CustomText
 export default function Index() {
   const uploader = useFetcher<UploadReturnTypes>()
-  const [imageUrls, setImageUrls] = useLocalStorage<string[]>('createPostImageUrls', [])
+  const [imageUrls, setImageUrls] = useLocalStorage<string[]>(
+    'createPostImageUrls',
+    []
+  )
 
   useEffect(() => {
     if (!uploader.data?.imgSrc) return
@@ -105,7 +111,10 @@ export default function Index() {
     }
   }, [uploader.data])
 
-  const [value, setValue] = useLocalStorage<CustomDescendant[]>('createPostContent', initialValue)
+  const [value, setValue] = useLocalStorage<CustomDescendant[]>(
+    'createPostContent',
+    initialValue
+  )
   const submit = useSubmit()
 
   const submitForm = (event: any) => {

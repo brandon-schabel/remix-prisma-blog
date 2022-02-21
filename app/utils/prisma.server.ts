@@ -28,7 +28,7 @@ function getClient(type: 'write' | 'read'): PrismaClient {
       { level: 'info', emit: 'stdout' },
       { level: 'warn', emit: 'stdout' },
     ],
-  })
+})
   client.$on('query', e => {
     if (e.duration < logThreshold) return
 

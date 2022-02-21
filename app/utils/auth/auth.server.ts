@@ -1,27 +1,57 @@
-import { Authenticator } from 'remix-auth'
-import { Auth0Profile, Auth0Strategy } from 'remix-auth-auth0'
-import { userStorageServer } from './userStorageServer.server'
+import { createCookieSessionStorage } from 'remix'
+import { Authenticator, AuthorizationError } from 'remix-auth'
+import { SupabaseStrategy } from 'remix-auth-supabase'
+import { Session } from '@supabase/supabase-js'
+import { supabaseClient } from '~/utils/supabase'
 
-// Create an instance of the authenticator, pass a generic with what your
-// strategies will return and will be stored in the session
-export const authenticator = new Authenticator<Auth0Profile | null>(
-  userStorageServer
-)
-
-let auth0Strategy = new Auth0Strategy(
-  {
-    callbackURL: process.env.AUTH0_CALLBACK || '',
-    clientID: 'VrCZtRljSRZdQWO0OFudo7Vg0xktUQ76',
-    clientSecret:
-      'ZHP3rnXIadSOjynOvIzMLfmXOw5wZPX2apL3n6mpDfHDUhbr_hx1ugTHxoZuON2b',
-    domain: 'dev-vup8eamx.us.auth0.com',
+export const sessionStorage = createCookieSessionStorage({
+  cookie: {
+    name: 'sb',
+    httpOnly: true,
+    path: '/',
+    sameSite: 'lax',
+    secrets: [process.env.SESSION_SECRET || 'S3CR3tS'], // This should be an env variable
+    secure: process.env.NODE_ENV === 'production',
   },
-  async ({ accessToken, refreshToken, extraParams, profile }) => {
-    // Get the user data from your DB or API using the tokens and profile
-    // return User.findOrCreate({ email: profile.emails[0].value })
+})
 
-    return profile
+export const supabaseStrategy = new SupabaseStrategy(
+  {
+    supabaseClient,
+    sessionStorage,
+    sessionKey: 'sb:session',
+    sessionErrorKey: 'sb:error',
+  },
+  async ({ req, supabaseClient }) => {
+    const form = await req.formData()
+    const email = form?.get('email')
+    const password = form?.get('password')
+
+    if (!email) throw new AuthorizationError('Email is required')
+    if (typeof email !== 'string')
+      throw new AuthorizationError('Email must be a string')
+
+    if (!password) throw new AuthorizationError('Password is required')
+    if (typeof password !== 'string')
+      throw new AuthorizationError('Password must be a string')
+
+    return supabaseClient.auth.api
+      .signInWithEmail(email, password)
+      .then(({ data, error }): Session => {
+        if (error || !data) {
+          throw new AuthorizationError(
+            error?.message ?? 'No user session found'
+          )
+        }
+
+        return data
+      })
   }
 )
 
-authenticator.use(auth0Strategy)
+export const authenticator = new Authenticator<Session>(sessionStorage, {
+  sessionKey: supabaseStrategy.sessionKey,
+  sessionErrorKey: supabaseStrategy.sessionErrorKey,
+})
+
+authenticator.use(supabaseStrategy)

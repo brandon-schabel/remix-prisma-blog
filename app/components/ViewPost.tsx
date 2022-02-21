@@ -1,8 +1,6 @@
 import { Post } from '@prisma/client'
 import { FC } from 'react'
-import { Node } from 'slate'
 import { ExtendedCustomElement } from '~/routes/post/$postId'
-
 
 export const PostContent: FC<{ post: Post }> = ({ post }) => {
   const content = post.content as unknown as ExtendedCustomElement[]

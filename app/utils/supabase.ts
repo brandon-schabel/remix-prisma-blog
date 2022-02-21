@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
 const isServer = typeof window === 'undefined'
-
 declare global {
   interface Window {
     ENV: { [key: string]: string }
@@ -13,7 +12,8 @@ function createSupabase() {
     //Server environment will use service key
     return createClient(
       process.env.PUBLIC_SUPABASE_URL || '',
-      process.env.PUBLIC_SUPABASE_SECRET_KEY || '', {}
+      process.env.PUBLIC_SUPABASE_SECRET_KEY || '',
+      {}
     )
   }
 

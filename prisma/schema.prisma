@@ -15,24 +15,27 @@ model Post {
     content   Json
     createdAt DateTime  @default(now())
     updatedAt DateTime  @default(now())
-    author    User?     @relation(fields: [authorId], references: [id])
-    authorId  Int?
+    author    User      @relation(fields: [authorId], references: [id])
+    authorId  String
     comments  Comment[]
 }
 
 model User {
-    id      Int       @id @default(autoincrement())
-    name    String
-    email   String
-    post    Post[]
-    Comment Comment[]
+    id               String    @id
+    username         String
+    email            String
+    post             Post[]
+    comments         Comment[]
+    firstName        String
+    lastName         String
+    authorizedPoster Boolean   @default(value: false)
 }
 
 model Comment {
     id          Int      @id @default(autoincrement())
     text        String
     createdBy   User     @relation(fields: [createdById], references: [id])
-    createdById Int
+    createdById String
     createdAt   DateTime @default(now())
     updatedAt   DateTime @default(now())
     post        Post     @relation(fields: [postId], references: [id])

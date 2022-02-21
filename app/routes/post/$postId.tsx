@@ -1,5 +1,5 @@
 import { LoaderFunction, useLoaderData } from 'remix'
-import { Post } from '@prisma/client'
+import { Post, User } from '@prisma/client'
 import { prismaDB } from '~/utils/prisma.server'
 import { Descendant } from 'slate'
 import { CustomElement, CustomText } from 'types'
@@ -9,13 +9,14 @@ import { ElementAttributes } from '~/components/TextEditor/TextEditor'
 
 export const loader: LoaderFunction = async ({ params }) => {
   const postId = parseInt(params?.postId || '0')
-  const posts = await prismaDB.post.findUnique({
+  const post = await prismaDB.post.findUnique({
     where: {
       id: postId,
     },
+    include: { author: true },
   })
 
-  return posts
+  return { post, author: post?.author }
 }
 
 interface ExtendedCustomText extends CustomText {
@@ -97,7 +98,7 @@ const ViewElement: FC<ViewElementProps> = ({
 }
 
 export default function Post() {
-  const post = useLoaderData<Post>()
+  const { post, author } = useLoaderData<{ post: Post; author: User }>()
   const title = post.title || ''
   const content = post.content as unknown as ExtendedCustomElement[]
 
@@ -108,7 +109,6 @@ export default function Post() {
 
         {content.map(node => {
           if (node.type === 'image') {
-            console.log(node)
             return (
               <Image
                 key={node.url}
@@ -134,6 +134,7 @@ export default function Post() {
           }
         })}
       </div>
+      <div>Posted By: {` ${author.firstName} ${author.lastName}`}</div>
     </div>
   )
 }
