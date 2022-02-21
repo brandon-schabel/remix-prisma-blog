@@ -24,7 +24,7 @@ npm run init-db-local
 ```
 
 ### .env file
-#DATABASE_URL=#postgres db link/credentials
+DATABASE_URL=#postgres db link/credentials
 
 ADMIN_USER=your_profile_name
 ADMIN_PASS=your_password

@@ -10,18 +10,31 @@ datasource db {
 }
 
 model Post {
-    id        Int      @id @default(autoincrement())
+    id        Int       @id @default(autoincrement())
     title     String
     content   Json
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
-    author    User?    @relation(fields: [authorId], references: [id])
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @default(now())
+    author    User?     @relation(fields: [authorId], references: [id])
     authorId  Int?
+    comments  Comment[]
 }
 
 model User {
-    id    Int    @id @default(autoincrement())
-    name  String
-    email String
-    post  Post[]
+    id      Int       @id @default(autoincrement())
+    name    String
+    email   String
+    post    Post[]
+    Comment Comment[]
+}
+
+model Comment {
+    id          Int      @id @default(autoincrement())
+    text        String
+    createdBy   User     @relation(fields: [createdById], references: [id])
+    createdById Int
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @default(now())
+    post        Post     @relation(fields: [postId], references: [id])
+    postId      Int
 }
