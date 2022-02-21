@@ -105,7 +105,9 @@ export default function EditPost() {
   const { post } = useLoaderData<{ post: Post }>()
   const uploader = useFetcher<UploadReturnTypes>()
   const [imageUrls, setImageUrls] = useState<string[]>(post.images)
-  const [value, setValue] = useState<CustomDescendant[]>(post.content as Descendant[])
+  const [value, setValue] = useState<CustomDescendant[]>(
+    post.content as Descendant[]
+  )
   const submit = useSubmit()
 
   useEffect(() => {
@@ -136,6 +138,12 @@ export default function EditPost() {
     submit(data, { method: 'post' })
   }
 
+  const handleCopy = (event: any, value: string) => {
+    if (typeof navigator !== 'undefined') {
+      navigator.clipboard.writeText(value)
+    }
+  }
+
   return (
     <div className="flex flex-col items-center justify-start w-full">
       <ActionMessage />
@@ -153,7 +161,18 @@ export default function EditPost() {
         </uploader.Form>
         <p>Image Urls</p>
 
-        {Array.isArray(imageUrls) && imageUrls.map(url => <p>{url}</p>)}
+        {Array.isArray(imageUrls) &&
+          imageUrls.map(url => (
+            <p>
+              {url}
+              <button
+                onClick={event => handleCopy(event, url)}
+                className="btn btn-primary my-2"
+              >
+                Copy
+              </button>
+            </p>
+          ))}
 
         <form method="post" className="flex flex-col" onSubmit={submitForm}>
           <Label htmlFor="title">Title</Label>

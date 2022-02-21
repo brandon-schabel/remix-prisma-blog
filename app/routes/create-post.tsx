@@ -18,6 +18,7 @@ import { getUser } from '~/utils/auth/getUser'
 import { ExtendedCustomElement } from './post/$postId/view-post'
 import { ActionMessage } from '~/components/ActionErrorMessage'
 
+
 const initialValue: CustomDescendant[] = [
   {
     type: 'paragraph',
