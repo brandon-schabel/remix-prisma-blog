@@ -104,6 +104,10 @@ export const Image: FC<ImageProps> = ({ attributes, children, element }) => {
   )
 }
 
+export const ImageThumbnail: FC<{ url: string }> = ({ url }) => {
+  return <img height={'50px'} width="auto" src={url} className="max-h-24" />
+}
+
 export interface ViewElementProps {
   attributes: ElementAttributes
   element: AppNode

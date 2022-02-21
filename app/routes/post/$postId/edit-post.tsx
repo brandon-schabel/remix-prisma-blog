@@ -12,8 +12,8 @@ import { Descendant } from 'slate'
 
 import { useEffect, useState } from 'react'
 import { TextEditor } from '~/components/TextEditor/TextEditor'
-import { useLocalStorage } from '~/utils/useLocalStorage'
 import { getUser } from '~/utils/auth/getUser'
+import { ImageThumbnail } from './view-post'
 import {
   CustomDescendant,
   Label,
@@ -163,15 +163,18 @@ export default function EditPost() {
 
         {Array.isArray(imageUrls) &&
           imageUrls.map(url => (
-            <p>
-              {url}
+            <div className="flex mt-4 justify-center items-center">
+              <div className="mr-4">
+                <ImageThumbnail url={url} />
+              </div>
               <button
                 onClick={event => handleCopy(event, url)}
                 className="btn btn-primary my-2"
               >
                 Copy
               </button>
-            </p>
+              <hr />
+            </div>
           ))}
 
         <form method="post" className="flex flex-col" onSubmit={submitForm}>
