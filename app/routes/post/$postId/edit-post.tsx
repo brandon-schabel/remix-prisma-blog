@@ -43,12 +43,17 @@ export const action: ActionFunction = async ({ request, params }) => {
 
   if (!post) return { error: { message: 'Post not found' } }
 
-  if (isPostCreatorOrAdmin(post, user)) {
-    return json({
-      error: {
-        message: 'You are not the author of this post.',
+  console.log(post.author, user)
+
+  if (!isPostCreatorOrAdmin(post, user)) {
+    return json(
+      {
+        error: {
+          message: 'You are not the author of this post.',
+        },
       },
-    })
+      400
+    )
   }
 
   const data = await request.formData()
@@ -69,7 +74,7 @@ export const action: ActionFunction = async ({ request, params }) => {
       },
     })
 
-    return redirect('/post/' + post.id)
+    return redirect('/post/' + post.id + '/view-post')
   } catch (error) {
     console.error(error)
     return null
@@ -78,16 +83,18 @@ export const action: ActionFunction = async ({ request, params }) => {
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const user = await getUser(request)
-
+  if (!user) return redirect('/')
   const postId = parseInt(params?.postId || '0')
+
   const post = await prismaDB.post.findUnique({
     where: {
       id: postId,
     },
     include: { author: true },
   })
+  if (!post) return null
 
-  if (post?.author.id !== user?.id) return redirect('/')
+  if (!isPostCreatorOrAdmin(post, user)) return redirect('/')
 
   return { post }
 }
