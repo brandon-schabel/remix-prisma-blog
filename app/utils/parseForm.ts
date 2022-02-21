@@ -1,14 +1,13 @@
-import { InputConfig } from '~/utils/formConfigs'
+import { FormConfig } from '~/utils/formConfigs'
 
 type FieldMods = Record<string, Function>
 
 export const parseFromFormFields = async <FormKeys extends string>(
-  formFields: InputConfig<any>[],
+  formFields: FormConfig<any>[],
   request: Request,
   fieldModifications?: FieldMods
 ) => {
   let body = await request.formData()
-  console.log(body)
   const data: Record<any, any> = {}
 
   formFields.forEach(field => {

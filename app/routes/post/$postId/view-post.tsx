@@ -1,13 +1,16 @@
-import { LoaderFunction, useLoaderData } from 'remix'
+import { Link, LoaderFunction, useLoaderData } from 'remix'
 import { Post, User } from '@prisma/client'
 import { prismaDB } from '~/utils/prisma.server'
-import { Descendant } from 'slate'
 import { CustomElement, CustomText } from 'types'
 import { FC } from 'react'
 import { imageClasses } from '~/components/EditorImage'
 import { ElementAttributes } from '~/components/TextEditor/TextEditor'
+import { getUser } from '~/utils/auth/getUser'
+import { isPostCreatorOrAdmin } from './edit-post'
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader: LoaderFunction = async ({ params, request }) => {
+  const user = await getUser(request)
+
   const postId = parseInt(params?.postId || '0')
   const post = await prismaDB.post.findUnique({
     where: {
@@ -16,10 +19,16 @@ export const loader: LoaderFunction = async ({ params }) => {
     include: { author: true },
   })
 
-  return { post, author: post?.author }
+  if (!post) return null
+
+  return {
+    post,
+    author: post?.author,
+    userCanEdit: user ? isPostCreatorOrAdmin(post, user) : false,
+  }
 }
 
-interface ExtendedCustomText extends CustomText {
+export interface ExtendedCustomText extends CustomText {
   bold?: boolean
   italic?: boolean
   code?: boolean
@@ -53,12 +62,12 @@ export const Image: FC<ImageProps> = ({ attributes, children, element }) => {
   )
 }
 
-interface ViewElementProps {
+export interface ViewElementProps {
   attributes: ElementAttributes
   element: AppNode
 }
 
-const ViewElement: FC<ViewElementProps> = ({
+export const ViewElement: FC<ViewElementProps> = ({
   attributes,
   children,
   element,
@@ -97,13 +106,14 @@ const ViewElement: FC<ViewElementProps> = ({
   }
 }
 
-export default function Post() {
-  const { post, author } = useLoaderData<{ post: Post; author: User }>()
+export default function View() {
+  const { post, author, userCanEdit } =
+    useLoaderData<{ post: Post; author: User; userCanEdit: boolean }>()
   const title = post.title || ''
   const content = post.content as unknown as ExtendedCustomElement[]
 
   return (
-    <div className="flex w-full justify-center items-center">
+    <div className="flex w-full justify-center items-center flex-col">
       <div className="flex flex-col justify-center items-center max-w-4xl w-full">
         <h1 className="text-xl text-center my-4">{title}</h1>
 
@@ -134,7 +144,12 @@ export default function Post() {
           }
         })}
       </div>
-      <div>Posted By: {` ${author.firstName} ${author.lastName}`}</div>
+      <div>Posted By {` ${author.firstName} ${author.lastName}`}</div>
+      {userCanEdit && (
+        <Link className="btn btn-primary" to={`/post/${post.id}/edit-post`}>
+          Edit
+        </Link>
+      )}
     </div>
   )
 }

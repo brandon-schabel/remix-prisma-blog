@@ -18,7 +18,6 @@ export const getUserAuth = async (request: Request) => {
 export const getUser = async (request: Request, successRedirect?: string) => {
   try {
     const session = await supabaseStrategy.checkSession(request)
-    console.log(session)
     if (!session) {
       return null
     }
@@ -32,7 +31,6 @@ export const getUser = async (request: Request, successRedirect?: string) => {
     })
 
     if (!userData) {
-      console.log('got here')
       userData = await prismaDB.user.create({
         data: {
           id: session.user?.id || '',

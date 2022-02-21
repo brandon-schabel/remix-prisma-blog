@@ -1,32 +1,56 @@
-import { FC, useState } from 'react'
-import { ActionFunction, json, redirect, useFetcher, useSubmit } from 'remix'
+import {
+  ActionFunction,
+  json,
+  LoaderFunction,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useSubmit,
+} from 'remix'
 import { prismaDB } from '~/utils/prisma.server'
 import { Descendant } from 'slate'
 
-import { CustomText } from 'types'
 import { useEffect } from 'react'
 import { TextEditor } from '~/components/TextEditor/TextEditor'
 import { useLocalStorage } from '~/utils/useLocalStorage'
 import { getUser } from '~/utils/auth/getUser'
-import { ExtendedCustomElement } from './post/$postId/view-post'
+import {
+  CustomDescendant,
+  Label,
+  UploadReturnTypes,
+} from '~/routes/create-post'
+import { Post, User } from '@prisma/client'
 import { ErrorMessage } from '~/components/ErrorMessage'
 
-const initialValue: CustomDescendant[] = [
-  {
-    type: 'paragraph',
-    children: [{ text: 'This is editable ' }],
-  },
-]
+export const isPostCreatorOrAdmin = (
+  post: Post & { author: User },
+  currentUser: User
+) => {
+  return post.author.id === currentUser.id || currentUser.isAdmin
+}
 
-export const action: ActionFunction = async ({ request }) => {
+export const action: ActionFunction = async ({ request, params }) => {
   const user = await getUser(request)
-  if (!user?.authorizedPoster) {
+  if (!user) return redirect('/auth/login')
+  const postId = params?.postId ? parseInt(params?.postId) : null
+
+  if (postId === null) return { error: { message: 'No id provided' } }
+
+  const post = await prismaDB.post.findUnique({
+    where: { id: postId },
+    include: { author: true },
+  })
+
+  if (!post) return { error: { message: 'Post not found' } }
+
+  if (isPostCreatorOrAdmin(post, user)) {
     return json({
       error: {
-        message: 'You are not an authorized user.',
+        message: 'You are not the author of this post.',
       },
     })
   }
+
   const data = await request.formData()
   const title = data.get('title') as string
   const content = data.get('content') as string
@@ -34,11 +58,14 @@ export const action: ActionFunction = async ({ request }) => {
   const parsedContent = JSON.parse(content) as Descendant[]
 
   try {
-    const post = await prismaDB.post.create({
+    const postUpdate = await prismaDB.post.update({
+      where: {
+        id: postId,
+      },
       data: {
         title: title || '',
         content: parsedContent || '',
-        authorId: user.id,
+        updatedAt: new Date(),
       },
     })
 
@@ -49,30 +76,32 @@ export const action: ActionFunction = async ({ request }) => {
   }
 }
 
-export const Label: FC<{ htmlFor: string }> = ({ children, htmlFor }) => {
-  return (
-    <label className="label label-text my-2" htmlFor={htmlFor}>
-      {children}
-    </label>
-  )
+export const loader: LoaderFunction = async ({ params, request }) => {
+  const user = await getUser(request)
+
+  const postId = parseInt(params?.postId || '0')
+  const post = await prismaDB.post.findUnique({
+    where: {
+      id: postId,
+    },
+    include: { author: true },
+  })
+
+  if (post?.author.id !== user?.id) return redirect('/')
+
+  return { post }
 }
 
-export type UploadReturnTypes = {
-  error?: string
-  imgSrc?: string
-}
-
-export type CustomDescendant = ExtendedCustomElement | CustomText
-
-export default function CreatePost() {
+export default function EditPost() {
+  const { post } = useLoaderData<{ post: Post }>()
   const uploader = useFetcher<UploadReturnTypes>()
   const [imageUrls, setImageUrls] = useLocalStorage<string[]>(
-    'createPostImageUrls',
+    'createPostImageUrls' + post.id,
     []
   )
   const [value, setValue] = useLocalStorage<CustomDescendant[]>(
-    'createPostContent',
-    initialValue
+    'updatePost' + post?.id,
+    post.content
   )
   const submit = useSubmit()
 
@@ -127,12 +156,16 @@ export default function CreatePost() {
 
         <form method="post" className="flex flex-col" onSubmit={submitForm}>
           <Label htmlFor="title">Title</Label>
-          <input name="title" className="input input-primary my-6" />
+          <input
+            name="title"
+            className="input input-primary my-6"
+            defaultValue={post.title}
+          />
 
           <TextEditor value={value} setValue={setValue} />
 
           <button type="submit" className="btn btn-primary my-10">
-            Create Post
+            Update Post
           </button>
         </form>
       </div>

@@ -14,7 +14,6 @@ export const action: ActionFunction = async ({ request }) => {
   if (!parseData) return null
 
   const { email = '', password = '' } = parseData
-  console.log(email, password)
 
   const result = await supabaseClient.auth.signUp({ email, password })
   if (result.error) {
@@ -24,14 +23,10 @@ export const action: ActionFunction = async ({ request }) => {
     )
   }
 
-  console.log(result)
-
   return redirect('/')
 }
 
 export default () => {
-  const action = useActionData<any>()
-  console.log(action)
   return (
     <WhoaForm
       formTitle="Sign Up"

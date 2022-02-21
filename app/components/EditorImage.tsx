@@ -1,7 +1,7 @@
 import { FC, useState } from 'react'
 import { Transforms } from 'slate'
 import { ReactEditor, useFocused, useSlateStatic } from 'slate-react'
-import { AppNode } from '~/routes/post/$postId'
+import { AppNode } from '~/routes/post/$postId/view-post'
 import { Button } from './TextEditor/EditorButtons'
 
 export const imageClasses = 'block w-auto max-h-80 shadow'

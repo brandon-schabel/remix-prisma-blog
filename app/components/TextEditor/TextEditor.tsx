@@ -21,7 +21,7 @@ import {
   MarkButton,
 } from './EditorButtons'
 import { toggleMark } from './utils'
-import { AppNode } from '~/routes/post/$postId'
+import { AppNode } from '~/routes/post/$postId/view-post'
 
 export type EditorType = BaseEditor & ReactEditor
 

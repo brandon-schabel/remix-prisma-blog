@@ -29,6 +29,7 @@ model User {
     firstName        String
     lastName         String
     authorizedPoster Boolean   @default(value: false)
+    isAdmin          Boolean   @default(value: false)
 }
 
 model Comment {

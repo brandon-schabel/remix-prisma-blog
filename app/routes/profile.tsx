@@ -4,7 +4,6 @@ import { getUser } from '~/utils/auth/getUser'
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const user = await getUser(request)
-  console.log(user)
   if(!user) return null
   return user
 }

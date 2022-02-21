@@ -1,6 +1,6 @@
 import { Post } from '@prisma/client'
 import { FC } from 'react'
-import { ExtendedCustomElement } from '~/routes/post/$postId'
+import { ExtendedCustomElement } from '~/routes/post/$postId/view-post'
 
 export const PostContent: FC<{ post: Post }> = ({ post }) => {
   const content = post.content as unknown as ExtendedCustomElement[]
