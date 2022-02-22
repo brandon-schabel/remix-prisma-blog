@@ -20,7 +20,7 @@ import {
   UploadReturnTypes,
 } from '~/routes/create-post'
 import { Post, User } from '@prisma/client'
-import { ActionMessage } from '~/components/ActionErrorMessage'
+import { ActionMessages } from '~/components/ActionMessages'
 
 export const isPostCreatorOrAdmin = (
   post: Post & { author: User },
@@ -146,7 +146,7 @@ export default function EditPost() {
 
   return (
     <div className="flex flex-col items-center justify-start w-full">
-      <ActionMessage />
+      <ActionMessages />
       <div className="flex flex-col  items-center justify-center max-w-screen-xl w-full">
         <uploader.Form
           method="post"

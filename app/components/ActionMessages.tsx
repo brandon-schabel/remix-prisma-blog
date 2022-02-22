@@ -1,6 +1,6 @@
 import { useActionData } from 'remix'
 
-export const ActionMessage = () => {
+export const ActionMessages = () => {
   const action = useActionData<any>()
   const infoMessage = action?.info?.message
   const errorMessage = action?.error?.message

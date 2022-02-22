@@ -15,7 +15,7 @@ import { imageClasses } from '~/components/EditorImage'
 import { ElementAttributes } from '~/components/TextEditor/TextEditor'
 import { getUser } from '~/utils/auth/getUser'
 import { isPostCreatorOrAdmin } from './edit-post'
-import { ActionMessage } from '~/components/ActionErrorMessage'
+import { ActionMessages } from '~/components/ActionMessages'
 import { BannerWarningMessage } from '~/components/BannerWarningMessage'
 import { resizeCloudinaryUrl } from '~/utils/cloudinaryImageUrlResize'
 
@@ -164,7 +164,7 @@ export default function View() {
 
   return (
     <div className="flex w-full justify-center items-center flex-col">
-      <ActionMessage />
+      <ActionMessages />
       {!post.published && (
         <BannerWarningMessage message="This Post Is Not Yet Published" />
       )}

@@ -19,7 +19,9 @@ model Post {
     authorId  String
     comments  Comment[]
     published Boolean   @default(false)
-    images     String[]
+    images    String[]
+    photos    Photo[]
+    tags      String[]
 }
 
 model User {
@@ -32,10 +34,11 @@ model User {
     lastName         String
     authorizedPoster Boolean   @default(value: false)
     isAdmin          Boolean   @default(value: false)
+    uploadedPhotos   Photo[]
 }
 
 model Comment {
-    id          Int      @id @default(autoincrement())
+    id          String   @id @default(cuid())
     text        String
     createdBy   User     @relation(fields: [createdById], references: [id])
     createdById String
@@ -43,4 +46,42 @@ model Comment {
     updatedAt   DateTime @default(now())
     post        Post     @relation(fields: [postId], references: [id])
     postId      Int
+}
+
+model Gallery {
+    id     Int      @id @default(autoincrement())
+    name   String
+    photos Photo[]
+    tags   String[]
+}
+
+model PhotoSize {
+    id        Int      @id @default(autoincrement())
+    width     Int?
+    height    Int?
+    photo     Photo    @relation(fields: [photoId], references: [id])
+    photoId   String
+    createdAt DateTime @default(now())
+    publicURL String
+}
+
+model Photo {
+    id           String      @id @default(cuid())
+    title        String?
+    description  String?
+    publicURL    String
+    createdAt    DateTime    @default(now())
+    updatedAt    DateTime    @default(now())
+    postId       Int?
+    post         Post?       @relation(fields: [postId], references: [id])
+    uploadedById String
+    uploadedBy   User        @relation(fields: [uploadedById], references: [id])
+    bucket       String
+    // fileKey is full path to file
+    fileKey      String
+    filename     String
+    gallery      Gallery?    @relation(fields: [galleryId], references: [id])
+    galleryId    Int?
+    tags         String[]
+    photoSizes   PhotoSize[]
 }
