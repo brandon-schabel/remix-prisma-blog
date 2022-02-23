@@ -13,11 +13,11 @@ Current Features
 - Post edit(if author or admin)
 - Only accounts marked with "authorizedPoster" can create a post
 - Error feedback and info messages
+- Cloudinary Integration
 
 I plan on adding
 - Commenting
-- Host images on supabase
-
+- Photo Gallery
 ## Setup
 Install Packages
 ```
