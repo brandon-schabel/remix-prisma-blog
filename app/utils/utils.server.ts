@@ -9,9 +9,7 @@ cloudinary.v2.config({
 
 const uploadImage = async (
   fileStream: Stream
-): Promise<
-  cloudinary.UploadApiResponse | cloudinary.UploadApiErrorResponse | undefined
-> => {
+): Promise<cloudinary.UploadApiResponse | undefined> => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.v2.uploader.upload_stream(
       {

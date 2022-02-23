@@ -1,25 +1,10 @@
 import React, { FC, useCallback, useMemo } from 'react'
 import isHotkey from 'is-hotkey'
-import { Editable, withReact, useSlate, Slate, ReactEditor } from 'slate-react'
-import {
-  Editor,
-  Transforms,
-  createEditor,
-  Descendant,
-  Element as SlateElement,
-  BaseEditor,
-} from 'slate'
+import { Editable, withReact, Slate, ReactEditor } from 'slate-react'
+import { createEditor, Descendant, BaseEditor } from 'slate'
 import { withHistory } from 'slate-history'
-import { CustomDescendant } from '~/routes/create-post'
-import { useSlateStatic } from 'slate-react'
 import { EditorImage } from '../EditorImage'
-import { CustomElement } from 'types'
-import {
-  BlockButton,
-  Button,
-  InsertImageButton,
-  MarkButton,
-} from './EditorButtons'
+import { BlockButton, InsertImageButton, MarkButton } from './EditorButtons'
 import { toggleMark } from './utils'
 import { AppNode } from '~/routes/post/$postId/view-post'
 
@@ -89,6 +74,10 @@ export type EmptyText = {
 export type ImageElement = {
   type: 'image'
   url: string
+  id: string
+  publicId: string
+  title: string
+  description: string
   children: EmptyText[]
 }
 
@@ -124,42 +113,6 @@ const Leaf: FC<LeafProps> = ({ attributes, children, leaf }) => {
   return <span {...attributes}>{children}</span>
 }
 
-const initialValue: CustomDescendant[] = [
-  {
-    type: 'paragraph',
-    children: [
-      { text: 'This is editable ' },
-      { text: 'rich', bold: true },
-      { text: ' text, ' },
-      { text: 'much', italic: true },
-      { text: ' better than a ' },
-      { text: '<textarea>', code: true },
-      { text: '!' },
-    ],
-  },
-  {
-    type: 'paragraph',
-    children: [
-      {
-        text: "Since it's rich text, you can do things like turn a selection of text ",
-      },
-      { text: 'bold', bold: true },
-      {
-        text: ', or add a semantically rendered block quote in the middle of the page, like this:',
-      },
-    ],
-  },
-  {
-    //@ts-ignore
-    type: 'block-quote',
-    children: [{ text: 'A wise quote.' }],
-  },
-  {
-    type: 'paragraph',
-    children: [{ text: 'Try it out for yourself!' }],
-  },
-]
-
 interface TextEditorProps {
   setValue: React.Dispatch<React.SetStateAction<Descendant[]>>
   value: Descendant[]
@@ -185,7 +138,6 @@ export const TextEditor: FC<TextEditorProps> = ({ value, setValue }) => {
         <InsertImageButton />
       </div>
       <Editable
-        //   className='input input-primary'
         className="textarea textarea-primary"
         renderElement={renderElement}
         renderLeaf={renderLeaf}

@@ -10,17 +10,31 @@ import {
 import { prismaDB } from '~/utils/prisma.server'
 import { Descendant } from 'slate'
 
-import { useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { TextEditor } from '~/components/TextEditor/TextEditor'
 import { getUser } from '~/utils/auth/getUser'
-import { ImageThumbnail } from './view-post'
-import {
-  CustomDescendant,
-  Label,
-  UploadReturnTypes,
-} from '~/routes/create-post'
+import { ExtendedCustomElement, ImageThumbnail } from './view-post'
 import { Post, User } from '@prisma/client'
 import { ActionMessages } from '~/components/ActionMessages'
+import { renderInputConfigs } from '~/components/WhoaForm'
+import { uploadImageConfigs } from '~/routes/cloudinary-upload'
+import { CustomText } from 'types'
+import { initialValue } from '~/routes/create-post'
+
+export const Label: FC<{ htmlFor: string }> = ({ children, htmlFor }) => {
+  return (
+    <label className="label label-text my-2" htmlFor={htmlFor}>
+      {children}
+    </label>
+  )
+}
+
+export type CustomDescendant = ExtendedCustomElement | CustomText
+
+export type UploadReturnTypes = {
+  error?: string
+  imgSrc?: string
+}
 
 export const isPostCreatorOrAdmin = (
   post: Post & { author: User },
@@ -92,8 +106,9 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     where: {
       id: postId,
     },
-    include: { author: true },
+    include: { author: true, photos: true },
   })
+
   if (!post) return null
 
   if (!isPostCreatorOrAdmin(post, user)) return redirect('/')
@@ -106,7 +121,7 @@ export default function EditPost() {
   const uploader = useFetcher<UploadReturnTypes>()
   const [imageUrls, setImageUrls] = useState<string[]>(post.images)
   const [value, setValue] = useState<CustomDescendant[]>(
-    post.content as Descendant[]
+    (post?.content as Descendant[]) || initialValue
   )
   const submit = useSubmit()
 
@@ -153,39 +168,26 @@ export default function EditPost() {
           encType="multipart/form-data"
           action="/cloudinary-upload"
         >
-          <Label htmlFor="ImageFile">Image File</Label>
-          <input type="file" name="img" accept="image/*" />
+          {renderInputConfigs(uploadImageConfigs)}
+          <input name="postId" value={post.id} hidden={true} />
+
           <button type="submit" className="btn btn-primary">
             Upload Photo
           </button>
         </uploader.Form>
         <p>Image Urls</p>
 
-        {Array.isArray(imageUrls) &&
-          imageUrls.map(url => (
-            <div className="flex mt-4 justify-center items-center">
-              <div className="mr-4">
-                <ImageThumbnail url={url} />
-              </div>
-              <button
-                onClick={event => handleCopy(event, url)}
-                className="btn btn-primary my-2"
-              >
-                Copy
-              </button>
-              <hr />
-            </div>
-          ))}
+        <div className="flex flex-col">
+          <TextEditor value={value} setValue={setValue} />
+        </div>
 
-        <form method="post" className="flex flex-col" onSubmit={submitForm}>
+        <form method="post" className="flex flex-col w-full" onSubmit={submitForm}>
           <Label htmlFor="title">Title</Label>
           <input
             name="title"
             className="input input-primary my-6"
             defaultValue={post.title}
           />
-
-          <TextEditor value={value} setValue={setValue} />
 
           <button type="submit" className="btn btn-primary my-10">
             Update Post

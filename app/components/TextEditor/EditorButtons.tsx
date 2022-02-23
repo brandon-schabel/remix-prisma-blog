@@ -1,6 +1,14 @@
-import { FC } from 'react'
+import { Photo, Post } from '@prisma/client'
+import { FC, useState } from 'react'
+import { LoaderFunction, useLoaderData } from 'remix'
 import { useSlate, useSlateStatic } from 'slate-react'
-import {insertImage, isBlockActive, isImageUrl, isMarkActive, toggleBlock, toggleMark } from './utils'
+import {
+  insertImage,
+  isBlockActive,
+  isMarkActive,
+  toggleBlock,
+  toggleMark,
+} from './utils'
 
 interface ButtonProps
   extends React.DetailedHTMLProps<
@@ -63,24 +71,80 @@ export const MarkButton: FC<MarkBlockButtonProps> = ({ format, icon }) => {
   )
 }
 
-export const InsertImageButton = () => {
-  const editor = useSlateStatic()
+export const loader: LoaderFunction = async ({ params }) => {
+  const postId = params.postId
+  if (!postId) return { photos: [] }
+
+  const post = await prismaDB?.post.findUnique({
+    where: {
+      id: parseInt(postId),
+    },
+    include: { photos: true },
+  })
+
+  return { photos: post?.photos }
+}
+
+const Modal: FC<{ isOpen: boolean; closeModal: () => void }> = ({
+  isOpen,
+  children,
+  closeModal,
+}) => {
+  if (!isOpen) return null
   return (
-    <Button
-      isActive={false}
-      onMouseDown={event => {
-        event.preventDefault()
-        const url = window.prompt('Enter the URL of the image:')
-        if (url && !isImageUrl(url)) {
-          alert('URL is not an image')
-          return
-        }
-        if (url) {
-          insertImage(editor, url)
-        }
-      }}
-    >
-      Insert Image
-    </Button>
+    <div className="modal modal-open">
+      <div className="modal-box md:max-w-4xl">
+        <div className="w-full justify-center items-center flex my-2">
+          <h1 className="text-xl">Insert Image</h1>
+        </div>
+        {children}
+        <div className="w-full justify-center items-center flex my-2">
+          <button className="btn btn-primary" onClick={closeModal}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export const InsertImageButton: FC = () => {
+  const data = useLoaderData<{ post: Post & { photos: Photo[] } }>()
+  const [modalOpen, setModalOpen] = useState(false)
+  const editor = useSlateStatic()
+
+  const openModal = (event: any) => {
+    event.preventDefault()
+    setModalOpen(!modalOpen)
+  }
+
+  const handleSelectImage = (photo: Photo) => {
+    insertImage(editor, photo)
+    setModalOpen(false)
+  }
+
+  return (
+    <>
+      <Modal isOpen={modalOpen} closeModal={() => setModalOpen(false)}>
+        <div className="carousel carousel-center">
+          {data.post?.photos &&
+            data.post?.photos.map(photo => {
+              return (
+                <div className="carousel-item mr-2">
+                  <button onClick={() => handleSelectImage(photo)}>
+                    <img
+                      src={photo.secureUrl}
+                      className="w-52 h-auto rounded shadow-lg"
+                    />
+                  </button>
+                </div>
+              )
+            })}
+        </div>
+      </Modal>
+      <button onClick={openModal} className="btn btn-primary">
+        Insert Image
+      </button>
+    </>
   )
 }

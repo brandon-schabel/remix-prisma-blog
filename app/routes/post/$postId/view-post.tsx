@@ -161,6 +161,7 @@ export default function View() {
     useLoaderData<{ post: Post; author: User; userCanEdit: boolean }>()
   const title = post.title || ''
   const content = post.content as unknown as ExtendedCustomElement[]
+  if (!content) return null
 
   return (
     <div className="flex w-full justify-center items-center flex-col">
@@ -200,15 +201,17 @@ export default function View() {
           Edit
         </Link>
       )}
-      {userCanEdit && <Form method="post">
-        <input type="hidden" name="postId" value={post.id} />
-        <button
-          type="submit"
-          className={`btn ${post.published ? 'btn-error' : 'btn-success'}`}
-        >
-          {post.published ? 'Unpublish' : 'Publish'}
-        </button>
-      </Form>}
+      {userCanEdit && (
+        <Form method="post">
+          <input type="hidden" name="postId" value={post.id} />
+          <button
+            type="submit"
+            className={`btn ${post.published ? 'btn-error' : 'btn-success'}`}
+          >
+            {post.published ? 'Unpublish' : 'Publish'}
+          </button>
+        </Form>
+      )}
     </div>
   )
 }

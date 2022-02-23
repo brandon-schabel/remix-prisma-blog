@@ -19,7 +19,6 @@ model Post {
     authorId  String
     comments  Comment[]
     published Boolean   @default(false)
-    images    String[]
     photos    Photo[]
     tags      String[]
 }
@@ -55,33 +54,30 @@ model Gallery {
     tags   String[]
 }
 
-model PhotoSize {
-    id        Int      @id @default(autoincrement())
-    width     Int?
-    height    Int?
-    photo     Photo    @relation(fields: [photoId], references: [id])
-    photoId   String
-    createdAt DateTime @default(now())
-    publicURL String
-}
-
 model Photo {
-    id           String      @id @default(cuid())
-    title        String?
+    // cloundinary fields
+    bytes            Int
+    etag             String
+    height           Int
+    format           String
+    originalFilename String
+    publicId         String
+    version          Int
+    signature        String
+    secureUrl        String
+    width            Int
+
+    // app fields
+    id           String   @id @default(cuid())
     description  String?
-    publicURL    String
-    createdAt    DateTime    @default(now())
-    updatedAt    DateTime    @default(now())
-    postId       Int?
-    post         Post?       @relation(fields: [postId], references: [id])
-    uploadedById String
-    uploadedBy   User        @relation(fields: [uploadedById], references: [id])
-    bucket       String
-    // fileKey is full path to file
-    fileKey      String
-    filename     String
-    gallery      Gallery?    @relation(fields: [galleryId], references: [id])
-    galleryId    Int?
+    title        String?
     tags         String[]
-    photoSizes   PhotoSize[]
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @default(now())
+    gallery      Gallery? @relation(fields: [galleryId], references: [id])
+    galleryId    Int?
+    uploadedById String
+    uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+    postId       Int?
+    post         Post?    @relation(fields: [postId], references: [id])
 }

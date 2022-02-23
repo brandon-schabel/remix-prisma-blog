@@ -5,6 +5,8 @@ import { ExtendedCustomElement } from '~/routes/post/$postId/view-post'
 export const PostContent: FC<{ post: Post }> = ({ post }) => {
   const content = post.content as unknown as ExtendedCustomElement[]
 
+  if(!content) return null
+
   return (
     <>
       {content.map(node => {

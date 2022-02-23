@@ -13,6 +13,7 @@ export interface IWhoaForm<ValidNameKeys> {
   data?: any
   className?: string
   reloadDocument?: boolean
+  encType?: 'multipart/form-data' | 'application/x-www-form-urlencoded '
 }
 
 export const getDefaultFormValues = (
@@ -119,6 +120,38 @@ const Checkbox: FC<{ config: FormConfig<any>; defaultValues: any }> = ({
   )
 }
 
+export const renderInputConfigs = (
+  inputConfigs: FormConfig<any>[],
+  data?: any,
+  errorFields?: any
+) => {
+  const defaultValues = getDefaultFormValues(inputConfigs, data)
+  return inputConfigs.map(config => {
+    if (config.inputType === 'other') {
+      return (
+        <div className="flex-center">
+          <h1 className="text-2xl my-4">{config.labelTitle}</h1>
+        </div>
+      )
+    }
+    if (config.select) {
+      return <Select config={config} />
+    }
+
+    if (config.inputType === 'checkbox') {
+      return <Checkbox config={config} defaultValues={defaultValues} />
+    }
+
+    return (
+      <Input
+        config={config}
+        defaultValues={defaultValues}
+        fieldError={errorFields ? errorFields[config.name] : null}
+      />
+    )
+  })
+}
+
 // TODO choose weather to map default values to form fields from db data or url params
 // TODO wire in action data to display error messages
 // TODO add more form features that are in notes
@@ -134,6 +167,7 @@ export const WhoaForm: FC<IWhoaForm<any>> = ({
   className,
   children,
   reloadDocument,
+  encType,
   // transition,
 }) => {
   const transition = useTransition()
@@ -186,30 +220,7 @@ export const WhoaForm: FC<IWhoaForm<any>> = ({
         onSubmit={handleClientSubmit}
         reloadDocument={reloadDocument}
       >
-        {inputConfigs.map(config => {
-          if (config.inputType === 'other') {
-            return (
-              <div className="flex-center">
-                <h1 className="text-2xl my-4">{config.labelTitle}</h1>
-              </div>
-            )
-          }
-          if (config.select) {
-            return <Select config={config} />
-          }
-
-          if (config.inputType === 'checkbox') {
-            return <Checkbox config={config} defaultValues={defaultValues} />
-          }
-
-          return (
-            <Input
-              config={config}
-              defaultValues={defaultValues}
-              fieldError={errorFields ? errorFields[config.name] : null}
-            />
-          )
-        })}
+        {renderInputConfigs(inputConfigs, data, errorFields)}
 
         <div className="flex justify-center w-full">
           <button

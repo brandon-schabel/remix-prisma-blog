@@ -1,6 +1,6 @@
 import { ActionFunction, json, redirect, useActionData } from 'remix'
 import { WhoaForm } from '~/components/WhoaForm'
-import { parseFromFormFields } from '~/utils/parseForm'
+import { parseFormFields } from '~/utils/parseForm'
 import { supabaseClient } from '~/utils/supabase'
 
 const signUpInputs = [
@@ -10,7 +10,10 @@ const signUpInputs = [
 
 type FormFields = 'email' | 'password'
 export const action: ActionFunction = async ({ request }) => {
-  const parseData = await parseFromFormFields<FormFields>(signUpInputs, request)
+  const parseData = await parseFormFields<FormFields>(
+    signUpInputs,
+    await request.formData()
+  )
   if (!parseData) return null
 
   const { email = '', password = '' } = parseData

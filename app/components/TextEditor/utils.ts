@@ -3,6 +3,7 @@ import imageExtensions from 'image-extensions'
 import { EditorType, ImageElement, LIST_TYPES } from './TextEditor'
 import { Editor, Transforms, Element as SlateElement } from 'slate'
 import { CustomElement } from 'types'
+import { Photo } from '@prisma/client'
 
 export const isImageUrl = (url: string) => {
   if (!url) return false
@@ -14,12 +15,21 @@ export const isImageUrl = (url: string) => {
   }
 }
 
-export const insertImage = (editor: Editor, url: string) => {
+export const insertImage = (editor: Editor, image: Photo) => {
   const text = { text: '' }
-  const image: ImageElement = { type: 'image', url, children: [text] }
+
+  const imageData: ImageElement = {
+    type: 'image',
+    url: image.secureUrl,
+    id: image.id,
+    publicId: image.publicId,
+    title: image.title || '',
+    description: image.description || '',
+    children: [text],
+  }
 
   // @ts-ignore
-  Transforms.insertNodes(editor, image)
+  Transforms.insertNodes(editor, imageData)
 }
 
 export const isMarkActive = (editor: EditorType, format: string) => {

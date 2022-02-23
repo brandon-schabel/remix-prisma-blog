@@ -8,7 +8,7 @@ import {
 import { User } from '@prisma/client'
 import { getUser } from '~/utils/auth/getUser'
 import { WhoaForm } from '~/components/WhoaForm'
-import { parseFromFormFields } from '~/utils/parseForm'
+import { parseFormFields } from '~/utils/parseForm'
 import { FormConfig } from '~/utils/formConfigs'
 
 type LoaderReturn = { user: User; inputs: FormConfig<any>[] }
@@ -20,7 +20,7 @@ const profileInputs: Record<string, FormConfig<any>> = {
     inputType: 'text',
     name: 'username',
     labelTitle: 'Username',
-    labelSubtitle: 'Username can only be set once.'
+    labelSubtitle: 'Username can only be set once.',
   },
 }
 const editProfileInputs: FormConfig<any>[] = [
@@ -32,9 +32,12 @@ const editProfileInputs: FormConfig<any>[] = [
 export const action: ActionFunction = async ({ request }) => {
   const user = await getUser(request)
   if (!user) return null
-  const formData = await parseFromFormFields<
-    'firstName' | 'lastName' | 'username'
-  >(editProfileInputs, request)
+  const formData = await parseFormFields<'firstName' | 'lastName' | 'username'>(
+    editProfileInputs,
+    await request.formData()
+  )
+
+  if (!formData) return json({ error: { message: 'Invalid form data' } })
 
   const updateData: any = {
     firstName: formData.firstName,
