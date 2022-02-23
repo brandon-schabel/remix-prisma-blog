@@ -68,16 +68,17 @@ model Photo {
     width            Int
 
     // app fields
-    id           String   @id @default(cuid())
-    description  String?
-    title        String?
-    tags         String[]
-    createdAt    DateTime @default(now())
-    updatedAt    DateTime @default(now())
-    gallery      Gallery? @relation(fields: [galleryId], references: [id])
-    galleryId    Int?
+    id          String   @id @default(cuid())
+    description String?
+    title       String?
+    tags        String[]
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @default(now())
+    gallery     Gallery? @relation(fields: [galleryId], references: [id])
+    galleryId   Int?
+
     uploadedById String
-    uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+    uploadedBy   User   @relation(fields: [uploadedById], references: [id])
     postId       Int?
-    post         Post?    @relation(fields: [postId], references: [id])
+    post         Post?  @relation(fields: [postId], references: [id])
 }

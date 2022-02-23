@@ -94,15 +94,25 @@ interface ImageProps {
   element: AppNode
 }
 
-export const Image: FC<ImageProps> = ({ attributes, children, element }) => {
+export const Image: FC<{ url: string }> = ({ url }) => {
+  return (
+    <img
+      src={resizeCloudinaryUrl(url)}
+      className={imageClasses + ' rounded mb-2'}
+    />
+  )
+}
+
+export const ImageNode: FC<ImageProps> = ({
+  attributes,
+  children,
+  element,
+}) => {
   return (
     <div {...attributes}>
       {children}
       <div contentEditable={false} className="relative">
-        <img
-          src={resizeCloudinaryUrl(element.url)}
-          className={imageClasses + ' rounded mb-2'}
-        />
+        <Image url={element.url || ''} />
       </div>
     </div>
   )
@@ -145,7 +155,11 @@ export const ViewElement: FC<ViewElementProps> = ({
       return <ol {...attributes}>{children}</ol>
     case 'image':
       return (
-        <Image attributes={attributes} element={element} children={children} />
+        <ImageNode
+          attributes={attributes}
+          element={element}
+          children={children}
+        />
       )
     default:
       return (
@@ -176,7 +190,7 @@ export default function View() {
           if (node.type === 'image') {
             return (
               <div className="flex w-full justify-center items-center">
-                <Image key={node.url} element={node} />
+                <ImageNode key={node.url} element={node} />
               </div>
             )
           }
