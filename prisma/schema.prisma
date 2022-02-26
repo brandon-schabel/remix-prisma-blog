@@ -34,6 +34,8 @@ model User {
     authorizedPoster Boolean   @default(value: false)
     isAdmin          Boolean   @default(value: false)
     uploadedPhotos   Photo[]
+    // createdGalleries Gallery[] @relation("createdGalleries")
+    // updatedGalleries Gallery[] @relation("updatedGalleries")
 }
 
 model Comment {
@@ -51,6 +53,10 @@ model Gallery {
     id                   Int      @id @default(autoincrement())
     updatedAt            DateTime @default(now())
     createdAt            DateTime @default(now())
+    // createdBy            User     @relation("createdGalleries", fields: [createdById], references: [id])
+    // createdById          String
+    // updatedBy            User     @relation("updatedGalleries", fields: [updatedById], references: [id])
+    // updatedById          String
     name                 String
     photos               Photo[]
     tags                 String[]

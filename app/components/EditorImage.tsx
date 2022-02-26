@@ -32,7 +32,7 @@ export const EditorImage: FC<IEditorImage> = ({
         <img
           onClick={() => setSelected(!selected)}
           src={element.url}
-          className={imageClasses}
+          className={imageClasses + ' max-h-96'}
           style={{
             boxShadow: `${selected && focused ? '0 0 0 3px #B4D5FF' : 'none'}`,
           }}

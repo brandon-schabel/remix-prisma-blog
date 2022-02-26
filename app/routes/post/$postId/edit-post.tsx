@@ -50,11 +50,17 @@ export const action: ActionFunction = async ({ request, params }) => {
   const postId = params?.postId ? parseInt(params?.postId) : null
 
   if (postId === null) return { error: { message: 'No id provided' } }
+  let post
 
-  const post = await prismaDB.post.findUnique({
-    where: { id: postId },
-    include: { author: true },
-  })
+  try {
+    post = await prismaDB.post.findUnique({
+      where: { id: postId },
+      include: { author: true },
+    })
+  } catch (error) {
+    console.error(error)
+    return { error: { message: 'Error retrieving post' } }
+  }
 
   if (!post) return { error: { message: 'Post not found' } }
 
@@ -72,10 +78,8 @@ export const action: ActionFunction = async ({ request, params }) => {
   const data = await request.formData()
   const title = data.get('title') as string
   const content = data.get('content') as string
-  const imageUrls = data.get('imageUrls') as string
 
   const parsedContent = JSON.parse(content) as Descendant[]
-  const parsedImageUrls = JSON.parse(imageUrls) as string[]
 
   try {
     const postUpdate = await prismaDB.post.update({
@@ -86,14 +90,13 @@ export const action: ActionFunction = async ({ request, params }) => {
         title: title || '',
         content: parsedContent || '',
         updatedAt: new Date(),
-        images: parsedImageUrls || [],
       },
     })
 
     return redirect('/post/' + post.id + '/view-post')
   } catch (error) {
     console.error(error)
-    return null
+    return { error: { message: 'Error updating post' } }
   }
 }
 
@@ -119,24 +122,10 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 export default function EditPost() {
   const { post } = useLoaderData<{ post: Post }>()
   const uploader = useFetcher<UploadReturnTypes>()
-  const [imageUrls, setImageUrls] = useState<string[]>(post.images)
   const [value, setValue] = useState<CustomDescendant[]>(
     (post?.content as Descendant[]) || initialValue
   )
   const submit = useSubmit()
-
-  useEffect(() => {
-    if (!uploader.data?.imgSrc) return
-    if (!Array.isArray(imageUrls)) return
-
-    // if imgSrc doesn't exists in imageUrls, add it
-    if (!imageUrls?.includes(uploader.data.imgSrc)) {
-      // if setImageUrls is a function, call it
-      if (typeof setImageUrls === 'function') {
-        setImageUrls([...imageUrls, uploader.data.imgSrc])
-      }
-    }
-  }, [uploader.data])
 
   const submitForm = (event: any) => {
     event.preventDefault()
@@ -147,7 +136,6 @@ export default function EditPost() {
     const data = {
       title,
       content,
-      imageUrls: JSON.stringify(imageUrls),
     }
 
     submit(data, { method: 'post' })
@@ -181,7 +169,11 @@ export default function EditPost() {
           <TextEditor value={value} setValue={setValue} />
         </div>
 
-        <form method="post" className="flex flex-col w-full" onSubmit={submitForm}>
+        <form
+          method="post"
+          className="flex flex-col w-full"
+          onSubmit={submitForm}
+        >
           <Label htmlFor="title">Title</Label>
           <input
             name="title"

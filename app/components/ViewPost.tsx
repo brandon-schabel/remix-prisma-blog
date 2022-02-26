@@ -5,11 +5,15 @@ import { ExtendedCustomElement } from '~/routes/post/$postId/view-post'
 export const PostContent: FC<{ post: Post }> = ({ post }) => {
   const content = post.content as unknown as ExtendedCustomElement[]
 
-  if(!content) return null
+  if (!content) return null
+
+  // get first two nodes from content
+  const firstTwoNodes = content.slice(0, 2)
 
   return (
     <>
-      {content.map(node => {
+      {firstTwoNodes.map(node => {
+        console.log(node)
         if (node.type === 'paragraph') {
           return node.children.map(text => {
             if (text.bold) {
