@@ -48,10 +48,15 @@ model Comment {
 }
 
 model Gallery {
-    id     Int      @id @default(autoincrement())
-    name   String
-    photos Photo[]
-    tags   String[]
+    id                   Int      @id @default(autoincrement())
+    updatedAt            DateTime @default(now())
+    createdAt            DateTime @default(now())
+    name                 String
+    photos               Photo[]
+    tags                 String[]
+    description          String?
+    galleryPhotoHeader   Photo?   @relation("headerPhoto", fields: [galleryPhotoHeaderId], references: [id])
+    galleryPhotoHeaderId String?
 }
 
 model Photo {
@@ -77,8 +82,9 @@ model Photo {
     gallery     Gallery? @relation(fields: [galleryId], references: [id])
     galleryId   Int?
 
-    uploadedById String
-    uploadedBy   User   @relation(fields: [uploadedById], references: [id])
-    postId       Int?
-    post         Post?  @relation(fields: [postId], references: [id])
+    uploadedById        String
+    uploadedBy          User      @relation(fields: [uploadedById], references: [id])
+    postId              Int?
+    post                Post?     @relation(fields: [postId], references: [id])
+    galleryPhotoHeaders Gallery[] @relation("headerPhoto")
 }

@@ -94,11 +94,11 @@ interface ImageProps {
   element: AppNode
 }
 
-export const Image: FC<{ url: string }> = ({ url }) => {
+export const Image: FC<{ url: string, width?: number, className?: string }> = ({ url, width, className}) => {
   return (
     <img
-      src={resizeCloudinaryUrl(url)}
-      className={imageClasses + ' rounded mb-2'}
+      src={resizeCloudinaryUrl(url, width)}
+      className={imageClasses + ' rounded mb-2 ' + className}
     />
   )
 }
@@ -112,7 +112,9 @@ export const ImageNode: FC<ImageProps> = ({
     <div {...attributes}>
       {children}
       <div contentEditable={false} className="relative">
-        <Image url={element.url || ''} />
+        <Link to={`/photo/${element.id}/view-photo`}>
+        <Image url={element.url || ''} className="max-h-96"/>
+        </Link>
       </div>
     </div>
   )

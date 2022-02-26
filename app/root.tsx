@@ -47,6 +47,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     ...baseNavLinks,
     { label: 'Logout', to: '/auth/logout', reloadDocument: true },
     { label: 'Profile', to: '/profile' },
+    { label: 'Galleries', to: '/gallery/view-galleries' },
   ]
 
   if (userAuth) {
