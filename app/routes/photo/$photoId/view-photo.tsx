@@ -97,13 +97,15 @@ export default function ViewImages() {
             </Link>
           )}
 
-          <Form method="post">
-            <input value={photo.id} hidden name="photoId" />
-            <input value={photo?.galleryId || ''} hidden name="galleryId" />
-            <button type="submit" className="btn btn-primary">
-              Set Gallery Header
-            </button>
-          </Form>
+          {photo.gallery && (
+            <Form method="post">
+              <input value={photo.id} hidden name="photoId" />
+              <input value={photo?.galleryId || ''} hidden name="galleryId" />
+              <button type="submit" className="btn btn-primary">
+                Set Gallery Header
+              </button>
+            </Form>
+          )}
         </div>
       </div>
     </div>
