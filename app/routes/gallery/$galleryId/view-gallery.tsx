@@ -19,7 +19,7 @@ type LoaderData = Gallery & {
   photos: Photo[]
 }
 
-export default function EditPost() {
+export default function ViewGallery() {
   const data = useLoaderData<LoaderData>()
 
   return (

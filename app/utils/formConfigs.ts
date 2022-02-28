@@ -37,6 +37,7 @@ export type FormConfig<ValidNameKeys> = {
 
   hidden?: boolean
   value?: string
+  multiple?: boolean
 
   // TODO: server validation fields
 }

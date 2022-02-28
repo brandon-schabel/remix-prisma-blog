@@ -74,8 +74,10 @@ export const action: ActionFunction = async ({ request }) => {
 
   const formData = await unstable_parseMultipartFormData(request, uploadHandler)
 
-  const imageData = formData.get('img') as string
-  let postId = parseInt(formData.get('postId') as string)
+  const imageDataArray = formData.getAll('img')
+
+  const postId = parseInt(formData.get('postId') as string)
+  const galleryId = parseInt(formData.get('galleryId') as string)
 
   const formFieldResults = await parseFormFields(
     uploadImageConfigs,
@@ -83,36 +85,42 @@ export const action: ActionFunction = async ({ request }) => {
     { tags: processTags }
   )
 
-  const uploadedImageData = JSON.parse(imageData) as UploadApiResponse
+  if (!formFieldResults) return null
 
-  if (formFieldResults) {
-    if (uploadedImageData) {
-      const photo = await createImageInfoInDB(uploadedImageData, {
+  const ids: Record<string, any> = {}
+  if (galleryId) ids.galleryId = galleryId
+  if (postId) ids.postId = postId
+
+  imageDataArray.forEach(async img => {
+    const imageData = JSON.parse(img.toString()) as UploadApiResponse
+
+    try {
+      const photo = await createImageInfoInDB(imageData, {
         uploadedById: user.id,
         description: formFieldResults.description,
-        title: formFieldResults.title,
+        title: formFieldResults.title || '',
         tags: formFieldResults.tags,
-        postId: postId,
+        ...ids,
       })
-
-      if (!formFieldResults) {
-        return json({
-          error: 'something went wrong',
-        })
-      }
-      return json({
-        imgSrc: uploadedImageData.secure_url,
-      })
+      return { info: { message: 'Image(s) uploaded successfully' } }
+    } catch (error) {
+      console.error(error)
     }
-  }
-  
+  })
+
   return json({
     error: { message: 'something went wrong' },
   })
 }
 
 export const uploadImageConfigs: FormConfig<any>[] = [
-  { inputType: 'file', name: 'img', labelTitle: 'Image', accept: 'image/*' },
+  {
+    inputType: 'file',
+    name: 'img',
+    labelTitle: 'Image',
+    accept: 'image/*',
+    multiple: true,
+  },
   { inputType: 'text', name: 'title', labelTitle: 'Title' },
   { inputType: 'text', name: 'description', labelTitle: 'Description' },
   { inputType: 'text', name: 'tags', labelTitle: 'Tags' },

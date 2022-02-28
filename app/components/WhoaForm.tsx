@@ -84,6 +84,7 @@ const Input: FC<{
           inputMode={config.inputMode}
           list={config.listValues ? config.name : undefined}
           disabled={config.disabled}
+          multiple={config.multiple}
         />
       </div>
       <datalist id={config.name}>
