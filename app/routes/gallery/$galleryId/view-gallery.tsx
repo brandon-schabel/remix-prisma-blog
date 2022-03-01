@@ -1,6 +1,6 @@
 import { Gallery, Photo } from '@prisma/client'
 import { Link, LoaderFunction, useLoaderData } from 'remix'
-import { Image } from '~/routes/post/$postId/view-post'
+import { Image } from '~/components/Image'
 
 export const loader: LoaderFunction = async ({ params }) => {
   if (!params.galleryId) return null

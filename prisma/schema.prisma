@@ -93,6 +93,4 @@ model Photo {
     postId              Int?
     post                Post?     @relation(fields: [postId], references: [id])
     galleryPhotoHeaders Gallery[] @relation("headerPhoto")
-
-
 }

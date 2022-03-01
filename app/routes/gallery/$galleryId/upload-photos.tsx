@@ -10,7 +10,7 @@ import { uploadImageConfigs } from '~/routes/cloudinary-upload'
 import { UploadReturnTypes } from '~/routes/post/$postId/edit-post'
 import { getUser } from '~/utils/auth/getUser'
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader: LoaderFunction = async ({ request }) => {
   const user = await getUser(request)
   if (!user) return redirect('/auth/login')
 
@@ -31,6 +31,7 @@ export default function UploadPhotoToGallery() {
       >
         {renderInputConfigs(uploadImageConfigs)}
         <input name="galleryId" value={params.galleryId} hidden={true} />
+        
 
         <button type="submit" className="btn btn-primary">
           Upload Photo

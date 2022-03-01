@@ -10,10 +10,10 @@ import {
 import { prismaDB } from '~/utils/prisma.server'
 import { Descendant } from 'slate'
 
-import { FC, useEffect, useState } from 'react'
+import { FC, useState } from 'react'
 import { TextEditor } from '~/components/TextEditor/TextEditor'
 import { getUser } from '~/utils/auth/getUser'
-import { ExtendedCustomElement, ImageThumbnail } from './view-post'
+import { ExtendedCustomElement } from './view-post'
 import { Post, User } from '@prisma/client'
 import { ActionMessages } from '~/components/ActionMessages'
 import { renderInputConfigs } from '~/components/WhoaForm'

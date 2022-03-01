@@ -9,6 +9,7 @@ import { FormConfig } from '~/utils/formConfigs'
 import { WhoaForm } from '~/components/WhoaForm'
 import { FC } from 'react'
 import { parseFormFields, processTags } from '~/utils/parseForm'
+import { fileInput, textInput } from '~/utils/formUtils'
 
 type ActionData = {
   errorMsg?: string
@@ -114,16 +115,10 @@ export const action: ActionFunction = async ({ request }) => {
 }
 
 export const uploadImageConfigs: FormConfig<any>[] = [
-  {
-    inputType: 'file',
-    name: 'img',
-    labelTitle: 'Image',
-    accept: 'image/*',
-    multiple: true,
-  },
-  { inputType: 'text', name: 'title', labelTitle: 'Title' },
-  { inputType: 'text', name: 'description', labelTitle: 'Description' },
-  { inputType: 'text', name: 'tags', labelTitle: 'Tags' },
+  fileInput('Image', 'img'),
+  textInput('Title', 'title'),
+  textInput('Description', 'description'),
+  textInput('Tags', 'tags'),
 ]
 
 export const CloudinarymageUploadForm: FC = () => {

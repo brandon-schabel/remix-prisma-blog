@@ -11,13 +11,12 @@ import { Post, User } from '@prisma/client'
 import { prismaDB } from '~/utils/prisma.server'
 import { CustomElement, CustomText } from 'types'
 import { FC } from 'react'
-import { imageClasses } from '~/components/EditorImage'
 import { ElementAttributes } from '~/components/TextEditor/TextEditor'
 import { getUser } from '~/utils/auth/getUser'
 import { isPostCreatorOrAdmin } from './edit-post'
 import { ActionMessages } from '~/components/ActionMessages'
 import { BannerWarningMessage } from '~/components/BannerWarningMessage'
-import { resizeCloudinaryUrl } from '~/utils/cloudinaryImageUrlResize'
+import { Image } from '~/components/Image'
 
 export const action: ActionFunction = async ({ request, params }) => {
   const user = await getUser(request)
@@ -94,15 +93,6 @@ interface ImageProps {
   element: AppNode
 }
 
-export const Image: FC<{ url: string, width?: number, className?: string }> = ({ url, width, className}) => {
-  return (
-    <img
-      src={resizeCloudinaryUrl(url, width)}
-      className={imageClasses + ' rounded mb-2 ' + className}
-    />
-  )
-}
-
 export const ImageNode: FC<ImageProps> = ({
   attributes,
   children,
@@ -112,8 +102,10 @@ export const ImageNode: FC<ImageProps> = ({
     <div {...attributes}>
       {children}
       <div contentEditable={false} className="relative">
+        {/* 
+        // @ts-ignore */}
         <Link to={`/photo/${element.id}/view-photo`}>
-        <Image url={element.url || ''} className="max-h-96"/>
+          <Image url={element.url || ''} className="max-h-96" />
         </Link>
       </div>
     </div>
@@ -192,6 +184,8 @@ export default function View() {
           if (node.type === 'image') {
             return (
               <div className="flex w-full justify-center items-center">
+                {/* 
+                // @ts-ignore */}
                 <ImageNode key={node.url} element={node} />
               </div>
             )
