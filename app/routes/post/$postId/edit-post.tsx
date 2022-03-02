@@ -3,6 +3,7 @@ import {
   json,
   LoaderFunction,
   redirect,
+  useActionData,
   useFetcher,
   useLoaderData,
   useSubmit,
@@ -128,11 +129,12 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 }
 
 export const GalleryPhotoModal: FC<{
-  postId: string
+  postId: string | number
   closeModal: Function
 }> = ({ postId, closeModal }) => {
   const galleryFetcher = useFetcher<ViewGalleryLoader>()
   const galleriesFetcher = useFetcher<{ galleries: GalleryWithPhotos[] }>()
+  const [selectedGalleryId, setSelectedGalleryId] = useState('')
   const addPhotoToPostFetcher = useFetcher()
 
   useEffect(() => {
@@ -140,12 +142,6 @@ export const GalleryPhotoModal: FC<{
       galleriesFetcher.load('/gallery/view-galleries')
     }
   }, [galleriesFetcher])
-
-  // useEffect(() => {
-
-  // },[galleries])
-
-  console.log(galleriesFetcher.data)
 
   const selectOptions = galleriesFetcher?.data?.galleries.map(gallery => {
     return {
@@ -164,8 +160,7 @@ export const GalleryPhotoModal: FC<{
     console.log(event.target)
 
     const galleryId = await event.currentTarget.galleryId.value
-
-    console.log(galleryId)
+    setSelectedGalleryId(galleryId)
 
     galleryFetcher.load(`/gallery/${galleryId}/view-gallery`)
   }
@@ -177,6 +172,8 @@ export const GalleryPhotoModal: FC<{
       { photoId: photo.id },
       { method: 'post', action: `/post/${postId}/add-photo-to-post` }
     )
+
+    galleryFetcher.load(`/gallery/${selectedGalleryId}/view-gallery`)
 
     console.log(result)
   }
@@ -195,16 +192,16 @@ export const GalleryPhotoModal: FC<{
       )}
 
       {galleryPhotos && (
-        <div className="flex flex-wrap w-full">
+        <div className="flex flex-wrap w-full justify-center">
           {galleryPhotos.map(photo => {
             if (photo.postId) return null
 
             return (
               <button
-                className="w-auto h-32 mr-4"
+                className="w-auto h-44 mr-4"
                 onClick={event => handleAddPhotoToPost(event, photo)}
               >
-                <Image url={photo.secureUrl} width={120} />
+                <Image url={photo.secureUrl} width={200} />
               </button>
             )
           })}
@@ -270,7 +267,7 @@ export default function EditPost() {
             Add Photo From Gallery
           </button>
 
-          {galleryPhotoModal && (
+          {(galleryPhotoModal) && (
             <GalleryPhotoModal
               postId={post.id}
               closeModal={() => setGalleryPhotoModal(false)}
