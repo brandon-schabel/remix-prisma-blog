@@ -47,7 +47,7 @@ export const BlockButton: FC<MarkBlockButtonProps> = ({ format, icon }) => {
         event.preventDefault()
         toggleBlock(editor, format)
       }}
-      className="btn-sm mr-2 "
+      className="btn-sm mr-2 mb-2"
     >
       {/* <Icon>{icon}</Icon> */}
       {/* {icon} */}
