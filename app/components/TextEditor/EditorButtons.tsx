@@ -2,6 +2,7 @@ import { Photo, Post } from '@prisma/client'
 import { FC, useState } from 'react'
 import { LoaderFunction, useLoaderData } from 'remix'
 import { useSlate, useSlateStatic } from 'slate-react'
+import { resizeCloudinaryUrl } from '~/utils/cloudinaryImageUrlResize'
 import {
   insertImage,
   isBlockActive,
@@ -46,6 +47,7 @@ export const BlockButton: FC<MarkBlockButtonProps> = ({ format, icon }) => {
         event.preventDefault()
         toggleBlock(editor, format)
       }}
+      className="btn-sm mr-2 "
     >
       {/* <Icon>{icon}</Icon> */}
       {/* {icon} */}
@@ -63,6 +65,7 @@ export const MarkButton: FC<MarkBlockButtonProps> = ({ format, icon }) => {
         event.preventDefault()
         toggleMark(editor, format)
       }}
+      className="btn-sm mr-2 mb-2"
     >
       {format}
       {/* {icon} */}
@@ -133,7 +136,7 @@ export const InsertImageButton: FC = () => {
                 <div className="carousel-item mr-2">
                   <button onClick={() => handleSelectImage(photo)}>
                     <img
-                      src={photo.secureUrl}
+                      src={resizeCloudinaryUrl(photo.secureUrl)}
                       className="w-52 h-auto rounded shadow-lg"
                     />
                   </button>
@@ -142,7 +145,7 @@ export const InsertImageButton: FC = () => {
             })}
         </div>
       </Modal>
-      <button onClick={openModal} className="btn btn-primary">
+      <button onClick={openModal} className="btn btn-primary btn-sm mr-2 mb-2">
         Insert Image
       </button>
     </>

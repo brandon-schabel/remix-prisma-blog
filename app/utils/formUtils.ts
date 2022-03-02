@@ -2,8 +2,13 @@ import { FormConfig, SelectType } from './formConfigs'
 
 // add field mod to input configs
 // for example a tags input would just be a text field with the field mod set to processTags
-export const textInput = (title: string, name: string): FormConfig<any> => {
+export const textInput = (
+  title: string,
+  name: string,
+  additionalOptions?: FormConfig<any>
+): FormConfig<any> => {
   return {
+    ...additionalOptions,
     labelTitle: title,
     name,
     inputType: 'text',
@@ -77,5 +82,15 @@ export const fileInput = (
     labelTitle: title,
     accept: accept ? accept : 'image/*',
     multiple: multiple,
+  }
+}
+
+export const hiddenInput = (name: string, value: string): FormConfig<any> => {
+  return {
+    name,
+    inputType: 'text',
+    hidden: true,
+    labelTitle: '',
+    value,
   }
 }

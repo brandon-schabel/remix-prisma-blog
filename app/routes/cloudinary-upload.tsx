@@ -10,6 +10,7 @@ import { WhoaForm } from '~/components/WhoaForm'
 import { FC } from 'react'
 import { parseFormFields, processTags } from '~/utils/parseForm'
 import { fileInput, textInput } from '~/utils/formUtils'
+import { errorMsg } from '~/utils/returnMessages'
 
 type ActionData = {
   errorMsg?: string
@@ -75,10 +76,15 @@ export const action: ActionFunction = async ({ request }) => {
 
   const formData = await unstable_parseMultipartFormData(request, uploadHandler)
 
+  console.log(formData)
   const imageDataArray = formData.getAll('img')
 
   const postId = parseInt(formData.get('postId') as string)
   const galleryId = parseInt(formData.get('galleryId') as string)
+
+  if(!postId && !galleryId) {
+    return errorMsg('No post or gallery id')
+  }
 
   const formFieldResults = await parseFormFields(
     uploadImageConfigs,

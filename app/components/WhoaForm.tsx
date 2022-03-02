@@ -80,11 +80,13 @@ const Input: FC<{
           name={config.name}
           type={config.inputType}
           defaultValue={defaultValues[config.name]}
+          value={config.value}
           placeholder={config.labelTitle}
           inputMode={config.inputMode}
           list={config.listValues ? config.name : undefined}
           disabled={config.disabled}
           multiple={config.multiple}
+          hidden={config.hidden}
         />
       </div>
       <datalist id={config.name}>

@@ -3,7 +3,6 @@ import {
   json,
   LoaderFunction,
   redirect,
-  useFetcher,
   useLoaderData,
   useSubmit,
 } from 'remix'
@@ -16,14 +15,13 @@ import { getUser } from '~/utils/auth/getUser'
 import { ExtendedCustomElement } from './view-post'
 import { Post, User } from '@prisma/client'
 import { ActionMessages } from '~/components/ActionMessages'
-import { renderInputConfigs } from '~/components/WhoaForm'
-import { uploadImageConfigs } from '~/routes/cloudinary-upload'
 import { CustomText } from 'types'
 import { initialValue } from '~/routes/create-post'
+import { UploadImageForm } from '~/components/UploadImageForm'
 
 export const Label: FC<{ htmlFor: string }> = ({ children, htmlFor }) => {
   return (
-    <label className="label label-text my-2" htmlFor={htmlFor}>
+    <label className="label label-text my-2 text-xl font-bold" htmlFor={htmlFor}>
       {children}
     </label>
   )
@@ -121,16 +119,16 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
 export default function EditPost() {
   const { post } = useLoaderData<{ post: Post }>()
-  const uploader = useFetcher<UploadReturnTypes>()
+  const [showUploadForm, setShowUploadForm] = useState(false)
+
   const [value, setValue] = useState<CustomDescendant[]>(
     (post?.content as Descendant[]) || initialValue
   )
+  const [title, setTitle] = useState(post?.title || '')
   const submit = useSubmit()
 
-  const submitForm = (event: any) => {
+  const submitPost = (event: any) => {
     event.preventDefault()
-
-    const title = event.currentTarget.title.value
     const content = JSON.stringify(value)
 
     const data = {
@@ -141,50 +139,43 @@ export default function EditPost() {
     submit(data, { method: 'post' })
   }
 
-  const handleCopy = (event: any, value: string) => {
-    if (typeof navigator !== 'undefined') {
-      navigator.clipboard.writeText(value)
-    }
-  }
-
   return (
     <div className="flex flex-col items-center justify-start w-full">
       <ActionMessages />
       <div className="flex flex-col  items-center justify-center max-w-screen-xl w-full">
-        <uploader.Form
-          method="post"
-          encType="multipart/form-data"
-          action="/cloudinary-upload"
-        >
-          {renderInputConfigs(uploadImageConfigs)}
-          <input name="postId" value={post.id} hidden={true} />
-
-          <button type="submit" className="btn btn-primary">
-            Upload Photo
-          </button>
-        </uploader.Form>
-        <p>Image Urls</p>
-
-        <div className="flex flex-col">
-          <TextEditor value={value} setValue={setValue} />
-        </div>
-
-        <form
-          method="post"
-          className="flex flex-col w-full"
-          onSubmit={submitForm}
-        >
-          <Label htmlFor="title">Title</Label>
+        <div className="flex flex-col w-full">
+          <Label htmlFor="title" >Title</Label>
           <input
+            value={title}
             name="title"
-            className="input input-primary my-6"
+            className="input input-primary mb-2"
             defaultValue={post.title}
+            onChange={event => setTitle(event.target.value)}
           />
+          <div className="flex flex-col mb-2">
+            <TextEditor value={value} setValue={setValue} />
+          </div>
 
-          <button type="submit" className="btn btn-primary my-10">
+          <button
+            onClick={() => setShowUploadForm(!showUploadForm)}
+            className="btn btn-primary"
+          >
+            {showUploadForm ? 'Close Form' : 'Upload Photos'}
+          </button>
+          {showUploadForm && (
+            <UploadImageForm
+              postId={post.id.toString() || ''}
+            ></UploadImageForm>
+          )}
+
+          <button
+            type="submit"
+            className="btn btn-primary my-10"
+            onClick={submitPost}
+          >
             Update Post
           </button>
-        </form>
+        </div>
       </div>
     </div>
   )

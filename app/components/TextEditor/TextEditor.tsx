@@ -126,7 +126,7 @@ export const TextEditor: FC<TextEditorProps> = ({ value, setValue }) => {
   return (
     <Slate editor={editor} value={value} onChange={value => setValue(value)}>
       <div>
-        <MarkButton format="bold" icon="format_bold" />
+        <MarkButton format="bold" icon="format_bold"/>
         <MarkButton format="italic" icon="format_italic" />
         <MarkButton format="underline" icon="format_underlined" />
         <MarkButton format="code" icon="code" />
