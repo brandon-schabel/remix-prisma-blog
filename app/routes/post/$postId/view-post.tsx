@@ -168,8 +168,7 @@ export default function View() {
   const { post, author, userCanEdit } =
     useLoaderData<{ post: Post; author: User; userCanEdit: boolean }>()
   const title = post.title || ''
-  const content = post.content as unknown as ExtendedCustomElement[]
-  if (!content) return null
+  const content = post.content as unknown as ExtendedCustomElement[] | undefined
 
   return (
     <div className="flex w-full justify-center items-center flex-col">
@@ -180,7 +179,7 @@ export default function View() {
       <div className="flex flex-col justify-center items-center max-w-4xl w-full">
         <h1 className="text-xl text-center my-4">{title}</h1>
 
-        {content.map(node => {
+        {content && content.map(node => {
           if (node.type === 'image') {
             return (
               <div className="flex w-full justify-center items-center">

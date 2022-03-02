@@ -137,6 +137,8 @@ export const renderInputConfigs = (
         </div>
       )
     }
+
+    console.log(config)
     if (config.select) {
       return <Select config={config} />
     }

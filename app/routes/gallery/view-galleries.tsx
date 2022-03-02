@@ -10,7 +10,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   return { galleries }
 }
 
-type GalleryWithPhotos = Gallery & {
+export type GalleryWithPhotos = Gallery & {
   galleryPhotoHeader: Photo
   photos: Photo[]
 }

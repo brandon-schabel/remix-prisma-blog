@@ -88,7 +88,7 @@ export const loader: LoaderFunction = async ({ params }) => {
   return { photos: post?.photos }
 }
 
-const Modal: FC<{ isOpen: boolean; closeModal: () => void }> = ({
+export const Modal: FC<{ isOpen: boolean; closeModal: () => void }> = ({
   isOpen,
   children,
   closeModal,

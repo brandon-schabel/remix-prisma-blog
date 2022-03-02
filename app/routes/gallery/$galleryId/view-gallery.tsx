@@ -15,12 +15,12 @@ export const loader: LoaderFunction = async ({ params }) => {
   return gallery
 }
 
-type LoaderData = Gallery & {
+export type ViewGalleryLoader = Gallery & {
   photos: Photo[]
 }
 
 export default function ViewGallery() {
-  const data = useLoaderData<LoaderData>()
+  const data = useLoaderData<ViewGalleryLoader>()
 
   return (
     <div className="w-full flex">

@@ -3,6 +3,7 @@ import {
   json,
   LoaderFunction,
   redirect,
+  useFetcher,
   useLoaderData,
   useSubmit,
 } from 'remix'
@@ -13,15 +14,24 @@ import { FC, useState } from 'react'
 import { TextEditor } from '~/components/TextEditor/TextEditor'
 import { getUser } from '~/utils/auth/getUser'
 import { ExtendedCustomElement } from './view-post'
-import { Post, User } from '@prisma/client'
+import { Photo, Post, User } from '@prisma/client'
 import { ActionMessages } from '~/components/ActionMessages'
 import { CustomText } from 'types'
 import { initialValue } from '~/routes/create-post'
 import { UploadImageForm } from '~/components/UploadImageForm'
-
+import { Modal } from '~/components/TextEditor/EditorButtons'
+import { useEffect } from 'react'
+import { WhoaForm } from '~/components/WhoaForm'
+import { selectInput } from '~/utils/formUtils'
+import { GalleryWithPhotos } from '~/routes/gallery/view-galleries'
+import { ViewGalleryLoader } from '~/routes/gallery/$galleryId/view-gallery'
+import { Image } from '~/components/Image'
 export const Label: FC<{ htmlFor: string }> = ({ children, htmlFor }) => {
   return (
-    <label className="label label-text my-2 text-xl font-bold" htmlFor={htmlFor}>
+    <label
+      className="label label-text my-2 text-xl font-bold"
+      htmlFor={htmlFor}
+    >
       {children}
     </label>
   )
@@ -117,13 +127,100 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   return { post }
 }
 
+export const GalleryPhotoModal: FC<{
+  postId: string
+  closeModal: Function
+}> = ({ postId, closeModal }) => {
+  const galleryFetcher = useFetcher<ViewGalleryLoader>()
+  const galleriesFetcher = useFetcher<{ galleries: GalleryWithPhotos[] }>()
+  const addPhotoToPostFetcher = useFetcher()
+
+  useEffect(() => {
+    if (galleriesFetcher.type === 'init') {
+      galleriesFetcher.load('/gallery/view-galleries')
+    }
+  }, [galleriesFetcher])
+
+  // useEffect(() => {
+
+  // },[galleries])
+
+  console.log(galleriesFetcher.data)
+
+  const selectOptions = galleriesFetcher?.data?.galleries.map(gallery => {
+    return {
+      label: gallery.name,
+      value: gallery.id.toString(),
+    }
+  })
+
+  const inputConfig = selectOptions
+    ? [selectInput('Gallery', 'galleryId', selectOptions)]
+    : null
+
+  const handleSelectGallery = async (event: any) => {
+    event.preventDefault()
+
+    console.log(event.target)
+
+    const galleryId = await event.currentTarget.galleryId.value
+
+    console.log(galleryId)
+
+    galleryFetcher.load(`/gallery/${galleryId}/view-gallery`)
+  }
+
+  const handleAddPhotoToPost = async (event: any, photo: Photo) => {
+    event.preventDefault()
+
+    const result = await addPhotoToPostFetcher.submit(
+      { photoId: photo.id },
+      { method: 'post', action: `/post/${postId}/add-photo-to-post` }
+    )
+
+    console.log(result)
+  }
+  console.log(selectOptions)
+
+  const galleryPhotos = galleryFetcher.data?.photos
+
+  return (
+    <Modal isOpen={true} closeModal={closeModal}>
+      {inputConfig && selectOptions && (
+        <WhoaForm
+          formTitle="Select Gallery"
+          inputConfigs={[selectInput('Gallery', 'galleryId', selectOptions)]}
+          clientSubmit={event => handleSelectGallery(event)}
+        ></WhoaForm>
+      )}
+
+      {galleryPhotos && (
+        <div className="flex flex-wrap w-full">
+          {galleryPhotos.map(photo => {
+            if (photo.postId) return null
+
+            return (
+              <button
+                className="w-auto h-32 mr-4"
+                onClick={event => handleAddPhotoToPost(event, photo)}
+              >
+                <Image url={photo.secureUrl} width={120} />
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </Modal>
+  )
+}
+
 export default function EditPost() {
   const { post } = useLoaderData<{ post: Post }>()
   const [showUploadForm, setShowUploadForm] = useState(false)
-
   const [value, setValue] = useState<CustomDescendant[]>(
     (post?.content as Descendant[]) || initialValue
   )
+  const [galleryPhotoModal, setGalleryPhotoModal] = useState(false)
   const [title, setTitle] = useState(post?.title || '')
   const submit = useSubmit()
 
@@ -144,7 +241,7 @@ export default function EditPost() {
       <ActionMessages />
       <div className="flex flex-col  items-center justify-center max-w-screen-xl w-full">
         <div className="flex flex-col w-full">
-          <Label htmlFor="title" >Title</Label>
+          <Label htmlFor="title">Title</Label>
           <input
             value={title}
             name="title"
@@ -163,9 +260,21 @@ export default function EditPost() {
             {showUploadForm ? 'Close Form' : 'Upload Photos'}
           </button>
           {showUploadForm && (
-            <UploadImageForm
-              postId={post.id.toString() || ''}
-            ></UploadImageForm>
+            <UploadImageForm postId={post.id.toString() || ''} />
+          )}
+
+          <button
+            className="btn btn-primary"
+            onClick={() => setGalleryPhotoModal(!galleryPhotoModal)}
+          >
+            Add Photo From Gallery
+          </button>
+
+          {galleryPhotoModal && (
+            <GalleryPhotoModal
+              postId={post.id}
+              closeModal={() => setGalleryPhotoModal(false)}
+            />
           )}
 
           <button

@@ -58,13 +58,13 @@ export const selectInput = (
   name: string,
   selectOptions: SelectType[],
   additionalOptions?: FormConfig<any>
-) => {
+): FormConfig<any> => {
   return {
     ...additionalOptions,
     labelTitle: title,
     name,
     inputType: 'select',
-    selectOptions: selectOptions,
+    select: { options: selectOptions },
   }
 }
 
