@@ -264,7 +264,7 @@ export default function EditPost() {
           )}
 
           <button
-            className="btn btn-primary"
+            className="btn btn-primary my-4"
             onClick={() => setGalleryPhotoModal(!galleryPhotoModal)}
           >
             Add Photo From Gallery
